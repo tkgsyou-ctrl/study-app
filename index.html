@@ -273,11 +273,25 @@
   .chizu-top {
     width: 100%;
     /* ノッチ対応：上部セーフエリアを加算 */
-    padding: max(6px, env(safe-area-inset-top)) 16px 2px;
+    padding: max(6px, env(safe-area-inset-top)) 16px 4px;
     box-sizing: border-box;
     background: linear-gradient(135deg, #e0f7fa 0%, #fce4ec 100%);
     flex-shrink: 0;
   }
+  /* プログレスバーのラッパー */
+  .chizu-pbar-row {
+    width: 100%;
+    background: #e0e0e0;
+    border-radius: 8px;
+    height: 8px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  /* スマホ用ヘッダー行（デフォルト非表示） */
+  .chizu-sp-header { display: none; }
+  .chizu-back-icon-btn { display: none; }
+  #chizu-score-badge { display: none; }
+
   #chizu-count { font-size: 13px; color: #757575; text-align: center; margin-bottom: 1px; }
   #chizu-q-text {
     font-size: clamp(18px, 4.5vw, 30px);
@@ -395,19 +409,27 @@
   #chizu-small-prefs {
     display: none;
     width: 100%;
-    padding: 4px 12px 3px;
+    padding: 4px 12px 6px;
     background: rgba(255,255,255,0.7);
     border-top: 1px solid #b3e5fc;
     box-sizing: border-box;
     flex-shrink: 0;
   }
   #chizu-small-prefs.active { display: block; }
-  #chizu-small-prefs p {
+  /* トグルヘッダー（PC: 説明テキスト風、スマホ: タップ可能ボタン風） */
+  .small-prefs-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     font-size: 12px;
     color: #555;
     margin-bottom: 4px;
     text-align: center;
+    cursor: default;
+    user-select: none;
   }
+  .small-prefs-arrow { display: none; }
   .small-pref-btns {
     display: flex;
     flex-wrap: wrap;
@@ -594,6 +616,146 @@
   @media (max-width: 768px) {
     .records-card { padding: 16px 14px; }
     .records-card h3 { font-size: 17px; }
+  }
+
+  /* ===== スマホ上部メニュー最適化（幅 600px 以下） ===== */
+  @media (max-width: 600px) {
+    /* 上部エリアを縦詰め */
+    .chizu-top {
+      padding: max(4px, env(safe-area-inset-top)) 10px 3px;
+    }
+
+    /* スマホ用ヘッダー行：戻るアイコン ＋ スコアバッジ */
+    .chizu-sp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    /* 戻るアイコンボタン */
+    .chizu-back-icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      min-height: 40px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.08);
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .chizu-back-icon-btn:active { background: rgba(0,0,0,0.18); }
+
+    /* スコアバッジ */
+    #chizu-score-badge {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      background: rgba(255,255,255,0.6);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* PC 用問題番号は非表示（バッジに統合） */
+    #chizu-count { display: none; }
+
+    /* 問題文：少し小さく・余白削減 */
+    #chizu-q-text {
+      font-size: clamp(15px, 4vw, 22px);
+      margin: 1px 0;
+      min-height: 28px;
+    }
+
+    /* タイマー */
+    #chizu-timer {
+      font-size: clamp(13px, 3vw, 18px);
+      min-height: 18px;
+    }
+
+    /* 下部「やめる」ボタン行は非表示（上部の戻るアイコンで代替） */
+    .chizu-quit-row { display: none; }
+
+    /* 小さい県：折りたたみUI */
+    .small-prefs-header {
+      cursor: pointer;
+      padding: 8px 12px;
+      margin-bottom: 0;
+      font-size: 14px;
+      font-weight: bold;
+      color: #1a237e;
+      background: #e8eaf6;
+      border-radius: 10px;
+    }
+    .small-prefs-arrow {
+      display: inline-block;
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+    /* 初期状態：ボタン一覧を折りたたむ */
+    #chizu-small-prefs .small-pref-btns {
+      display: none;
+      margin-top: 6px;
+    }
+    /* expanded クラスで展開 */
+    #chizu-small-prefs.expanded .small-pref-btns { display: flex; }
+    #chizu-small-prefs.expanded .small-prefs-arrow { transform: rotate(180deg); }
+  }
+
+  /* ===== スマホ横向き：さらにコンパクトな1行レイアウト ===== */
+  @media (max-width: 600px), (max-height: 600px) and (orientation: landscape) {
+    /* 横向き専用のオーバーライドは下で別途定義 */
+  }
+  @media (max-height: 600px) and (orientation: landscape) {
+    /* chizu-top を横並び flex にする */
+    .chizu-top {
+      display: flex;
+      flex-wrap: wrap;           /* 1行目: pbar / 2行目: 残り */
+      align-items: center;
+      padding: max(2px, env(safe-area-inset-top)) 8px 2px;
+      gap: 0 6px;
+    }
+    /* プログレスバー：full-width で1行目 */
+    .chizu-pbar-row {
+      flex: 1 0 100%;
+      margin-bottom: 3px;
+      height: 5px;
+    }
+    /* 戻るアイコン：2行目左 */
+    .chizu-sp-header {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 0;
+    }
+    /* 問題文：2行目中央（残り幅を占有） */
+    #chizu-q-text {
+      flex: 1;
+      text-align: left;
+      font-size: clamp(13px, 2.8vw, 18px);
+      min-height: unset;
+      margin: 0;
+      order: 0;
+    }
+    /* タイマー：2行目右 */
+    #chizu-timer {
+      flex: 0 0 auto;
+      font-size: 12px;
+      min-height: unset;
+      color: #c62828;
+      font-weight: bold;
+      order: 1;
+    }
+    /* PC用問題番号：非表示 */
+    #chizu-count { display: none; }
   }
 
   /* ===== スマホ地図：高さ基準レイアウト ===== */
@@ -836,11 +998,20 @@
   <div id="chizu-rotate-hint">📱↔️ スマホは よこむきにしてね</div>
 
   <div class="chizu-top">
-    <div style="width:100%;background:#e0e0e0;border-radius:8px;height:8px;margin-bottom:6px;overflow:hidden">
+    <!-- プログレスバー（共通） -->
+    <div class="chizu-pbar-row">
       <div id="chizu-pbar" style="height:100%;background:linear-gradient(90deg,#43a047,#1de9b6);border-radius:8px;width:0%;transition:width 0.4s"></div>
     </div>
+    <!-- スマホ用ヘッダー行：戻るアイコン + スコアバッジ（PC では非表示） -->
+    <div class="chizu-sp-header">
+      <button class="chizu-back-icon-btn" onclick="chizuQuit()" title="やめる">←</button>
+      <span id="chizu-score-badge"></span>
+    </div>
+    <!-- PC用問題番号（スマホでは非表示 → バッジに統合） -->
     <p id="chizu-count"></p>
+    <!-- 問題文（共通） -->
     <p id="chizu-q-text"></p>
+    <!-- タイマー（共通） -->
     <p id="chizu-timer"></p>
   </div>
   <div class="map-wrap">
@@ -852,7 +1023,11 @@
 
   <!-- 小さい県ボタンバー -->
   <div id="chizu-small-prefs">
-    <p>👆 小さいけん → ボタンでえらべるよ</p>
+    <!-- PC: 説明テキスト / スマホ: 折りたたみトグルボタン -->
+    <div class="small-prefs-header" onclick="toggleSmallPrefs()">
+      <span>👆 小さいけん</span>
+      <span class="small-prefs-arrow" aria-hidden="true">▼</span>
+    </div>
     <div class="small-pref-btns">
       <button class="small-pref-btn" id="spb-tokyo"    onclick="handlePrefSelect('tokyo')">東京</button>
       <button class="small-pref-btn" id="spb-kanagawa" onclick="handlePrefSelect('kanagawa')">神奈川</button>
@@ -1915,6 +2090,8 @@ async function startChizuGame(level) {
     await buildMap();
     document.getElementById('japan-svg').className = 'easy-mode';
     document.getElementById('chizu-q-text').textContent = '👇 けんを タップして なまえを たしかめよう！';
+    const badge = document.getElementById('chizu-score-badge');
+    if (badge) badge.textContent = 'まなぶ';
     showPinchHint();
     return;
   }
@@ -1977,6 +2154,19 @@ function cancelChizuSelect() { clearSelection(); }
 
 // ─────────────────────────────────────────────────────────
 
+// スコアバッジ更新（スマホ用）
+function updateChizuBadge() {
+  const badge = document.getElementById('chizu-score-badge');
+  if (!badge || !cz.qs) return;
+  badge.textContent = `${cz.cur + 1}/${cz.qs.length}問 ⭐${cz.score}`;
+}
+
+// 小さい県ボタン折りたたみトグル
+function toggleSmallPrefs() {
+  const el = document.getElementById('chizu-small-prefs');
+  if (el) el.classList.toggle('expanded');
+}
+
 function renderChizuQ() {
   clearSelection();
   cz.answered = false;
@@ -1984,10 +2174,13 @@ function renderChizuQ() {
   const total = cz.qs.length;
   document.getElementById('chizu-pbar').style.width = `${(cz.cur/total)*100}%`;
   document.getElementById('chizu-count').textContent = `もんだい ${cz.cur+1} / ${total}`;
+  updateChizuBadge();
   const pref = cz.qs[cz.cur];
   document.getElementById('chizu-q-text').textContent = `「${pref.name}」は どこ？`;
   document.getElementById('chizu-timer').textContent = '';
-  document.getElementById('chizu-small-prefs').classList.add('active');
+  // 小さい県パネルを毎問折りたたみリセット（スマホ用）
+  const sp = document.getElementById('chizu-small-prefs');
+  if (sp) { sp.classList.remove('expanded'); sp.classList.add('active'); }
   if (cz.level === 'hard') startChizuTimer();
 }
 
