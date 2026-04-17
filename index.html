@@ -893,30 +893,42 @@
     .card { padding: 16px 12px; }
   }
 
-  /* ===== 経験値・ドラゴンシステム ===== */
-  #dragon-bar {
+  /* ===== ドラゴンパネル ===== */
+  #dragon-panel {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding: 10px 16px;
-    background: rgba(255,255,255,0.75);
-    border-radius: 20px;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 14px 20px 12px;
+    background: rgba(255,255,255,0.82);
+    border-radius: 24px;
     width: 100%;
-    max-width: 520px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: 320px;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.1);
   }
-  #dragon-icon { font-size: 34px; line-height: 1; flex-shrink: 0; }
-  .dragon-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
-  .dragon-level { font-weight: bold; color: #6a1b9a; font-size: 15px; }
-  .dragon-exp-wrap { background: #e0e0e0; border-radius: 8px; height: 10px; overflow: hidden; }
+  #dragon-svg-wrap {
+    width: 150px;
+    height: 150px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.18));
+  }
+  #dragon-svg-wrap svg { width: 150px; height: 150px; display: block; }
+  .dragon-info-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+  #dragon-level-text { font-weight: bold; font-size: 16px; color: #6a1b9a; }
+  .dragon-exp-wrap { background: #e0e0e0; border-radius: 8px; height: 12px; overflow: hidden; width: 100%; }
   .dragon-exp-bar { height: 100%; background: linear-gradient(90deg, #ab47bc, #7c4dff); border-radius: 8px; transition: width 0.5s ease; }
-  .dragon-exp-label { font-size: 12px; color: #888; }
+  #dragon-exp-label { font-size: 13px; color: #777; }
 
-  /* ===== レベルアップオーバーレイ ===== */
+  /* ===== レベルアップ/しんかオーバーレイ ===== */
   #levelup-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.55);
+    background: rgba(0,0,0,0.68);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     z-index: 300;
@@ -927,22 +939,30 @@
   #levelup-overlay.show { opacity: 1; pointer-events: auto; }
   #levelup-content {
     text-align: center;
-    transform: scale(0.5);
-    transition: transform 0.3s;
+    transform: scale(0.4);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
   }
   #levelup-overlay.show #levelup-content { transform: scale(1); }
-  #levelup-dragon { font-size: 80px; line-height: 1; margin-bottom: 8px; }
+  #levelup-svg-wrap {
+    width: 140px; height: 140px;
+    filter: drop-shadow(0 0 20px rgba(255,220,0,0.9));
+  }
+  #levelup-svg-wrap svg { width: 140px; height: 140px; display: block; }
   #levelup-text {
-    font-size: clamp(30px, 8vw, 54px);
-    font-weight: bold;
-    color: #fff200;
-    text-shadow: 3px 3px 0 rgba(0,0,0,0.35);
+    font-size: clamp(28px, 7vw, 48px);
+    font-weight: bold; color: #fff200;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.45);
+  }
+  #levelup-sub {
+    font-size: clamp(18px, 4.5vw, 28px);
+    font-weight: bold; color: #ffe082;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+    min-height: 1.3em;
   }
   #levelup-level {
-    font-size: clamp(20px, 5vw, 34px);
-    font-weight: bold;
-    color: #fff;
-    margin-top: 8px;
+    font-size: clamp(16px, 4vw, 24px);
+    font-weight: bold; color: #fff;
     text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
   }
 </style>
@@ -952,11 +972,12 @@
 <!-- ===== フィードバックオーバーレイ ===== -->
 <div id="feedback-overlay"><div id="feedback-msg"></div></div>
 
-<!-- ===== レベルアップオーバーレイ ===== -->
+<!-- ===== レベルアップ/しんかオーバーレイ ===== -->
 <div id="levelup-overlay">
   <div id="levelup-content">
-    <div id="levelup-dragon"></div>
-    <div id="levelup-text">レベルアップ！🎉</div>
+    <div id="levelup-svg-wrap"></div>
+    <div id="levelup-text"></div>
+    <div id="levelup-sub"></div>
     <div id="levelup-level"></div>
   </div>
 </div>
@@ -990,12 +1011,12 @@
     <span id="current-user-label">👤 <span id="current-user-name-span"></span></span>
     <button onclick="showScreen('user-select-screen')">かえる</button>
   </div>
-  <div id="dragon-bar">
-    <span id="dragon-icon">🥚</span>
-    <div class="dragon-info">
-      <span class="dragon-level">Lv.1 たまご</span>
+  <div id="dragon-panel">
+    <div id="dragon-svg-wrap"></div>
+    <div class="dragon-info-row">
+      <span id="dragon-level-text">Lv.1 たまご</span>
       <div class="dragon-exp-wrap"><div class="dragon-exp-bar" style="width:0%"></div></div>
-      <span class="dragon-exp-label">けいけんち 0 / 100</span>
+      <span id="dragon-exp-label">EXP 0 / 100</span>
     </div>
   </div>
   <h1>📚 べんきょうアプリ</h1>
@@ -1550,13 +1571,13 @@ function answer(chosen, correct, btn) {
   state.current++;
 
   // 経験値加算
-  let newLevel = null;
-  if (isCorrect) newLevel = addExp(10);
+  let levelUpResult = null;
+  if (isCorrect) levelUpResult = addExp(10);
 
   setTimeout(() => {
     hideFeedback();
-    if (newLevel) {
-      showLevelUp(newLevel);
+    if (levelUpResult) {
+      showLevelUp(levelUpResult);
       setTimeout(() => {
         hideLevelUp();
         if (state.current < state.questions.length) {
@@ -1564,7 +1585,7 @@ function answer(chosen, correct, btn) {
         } else {
           showResult();
         }
-      }, 2000);
+      }, 2500);
     } else {
       if (state.current < state.questions.length) {
         renderQuestion();
@@ -1667,7 +1688,7 @@ function selectUser(name) {
   // タイトル画面のユーザーバー更新
   const span = document.getElementById('current-user-name-span');
   if (span) span.textContent = name;
-  updateDragonBar();
+  updateDragonPanel();
   showScreen('title-screen');
 }
 
@@ -1741,7 +1762,7 @@ function userDialogCancel() {
 }
 
 // ======================================================
-// 経験値・レベルシステム
+// 経験値・レベルシステム（SVGドラゴン）
 // ======================================================
 const LS_EXP_KEY = 'study_app_exp_v1';
 
@@ -1755,48 +1776,261 @@ function loadExp() {
 function saveExp(data) {
   localStorage.setItem(userExpKey(currentUser), JSON.stringify(data));
 }
-function expToLevel(exp) {
-  return Math.floor(exp / 100) + 1;
-}
-function getDragonIcon(level) {
-  if (level >= 30) return '⚡🐉✨';
-  if (level >= 20) return '🔥🐉';
-  if (level >= 10) return '🐉';
-  if (level >= 5)  return '🐲';
-  return '🥚';
+function expToLevel(exp) { return Math.floor(exp / 100) + 1; }
+
+function getDragonStage(level) {
+  if (level >= 30) return 4;
+  if (level >= 20) return 3;
+  if (level >= 10) return 2;
+  if (level >= 5)  return 1;
+  return 0;
 }
 function getDragonName(level) {
-  if (level >= 30) return '神竜';
-  if (level >= 20) return '炎ドラゴン';
-  if (level >= 10) return 'ドラゴン';
+  if (level >= 30) return '伝説の虹ドラゴン';
+  if (level >= 20) return '神竜';
+  if (level >= 10) return '炎ドラゴン';
   if (level >= 5)  return 'こドラゴン';
   return 'たまご';
 }
-function updateDragonBar() {
-  const bar = document.getElementById('dragon-bar');
-  if (!bar || !currentUser) return;
+
+// ── SVGドラゴン描画関数 ──────────────────────────────────
+
+function svgEgg() {
+  return `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="eg1" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#f5e6ff"/>
+      <stop offset="55%" stop-color="#cc80e8"/>
+      <stop offset="100%" stop-color="#7b1fa2"/>
+    </radialGradient>
+    <radialGradient id="eg2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e1bee7" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#e1bee7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="75" cy="84" rx="60" ry="66" fill="url(#eg2)"/>
+  <ellipse cx="75" cy="82" rx="43" ry="53" fill="url(#eg1)" stroke="#9c27b0" stroke-width="1.5"/>
+  <polyline points="73,47 65,60 74,55 68,70" stroke="#5e0080" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="80,64 88,71 82,75 85,85" stroke="#5e0080" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="60" y1="90" x2="55" y2="100" stroke="#5e0080" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+  <ellipse cx="57" cy="62" rx="9" ry="13" fill="white" opacity="0.38" transform="rotate(-25,57,62)"/>
+  <circle cx="112" cy="52" r="3" fill="#e040fb" opacity="0.75"/>
+  <circle cx="106" cy="63" r="2" fill="#e040fb" opacity="0.5"/>
+  <circle cx="118" cy="66" r="2" fill="#ba68c8" opacity="0.65"/>
+  <circle cx="38" cy="96" r="2.5" fill="#ce93d8" opacity="0.7"/>
+  <circle cx="33" cy="108" r="1.8" fill="#ce93d8" opacity="0.5"/>
+</svg>`;
+}
+
+function svgBabyDragon() {
+  return `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bd1" cx="38%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#c8e6c9"/>
+      <stop offset="100%" stop-color="#2e7d32"/>
+    </radialGradient>
+  </defs>
+  <path d="M103 108 Q133 118 128 140 Q111 128 104 114 Z" fill="#4caf50"/>
+  <path d="M50 90 Q26 66 35 50 Q46 72 54 85 Z" fill="#81c784" stroke="#4caf50" stroke-width="1"/>
+  <path d="M100 90 Q124 66 115 50 Q104 72 96 85 Z" fill="#81c784" stroke="#4caf50" stroke-width="1"/>
+  <ellipse cx="75" cy="104" rx="36" ry="29" fill="url(#bd1)"/>
+  <ellipse cx="75" cy="109" rx="22" ry="16" fill="#e8f5e9"/>
+  <circle cx="75" cy="66" r="27" fill="url(#bd1)"/>
+  <polygon points="75,31 69,50 81,50" fill="#aed581"/>
+  <ellipse cx="51" cy="50" rx="7" ry="10" fill="#4caf50" transform="rotate(-20,51,50)"/>
+  <ellipse cx="99" cy="50" rx="7" ry="10" fill="#4caf50" transform="rotate(20,99,50)"/>
+  <circle cx="64" cy="63" r="9" fill="white"/>
+  <circle cx="86" cy="63" r="9" fill="white"/>
+  <circle cx="66" cy="65" r="5.5" fill="#1b5e20"/>
+  <circle cx="88" cy="65" r="5.5" fill="#1b5e20"/>
+  <circle cx="64" cy="62" r="2.5" fill="white"/>
+  <circle cx="86" cy="62" r="2.5" fill="white"/>
+  <path d="M64 78 Q75 87 86 78" stroke="#1b5e20" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="53" cy="74" r="6" fill="#f48fb1" opacity="0.42"/>
+  <circle cx="97" cy="74" r="6" fill="#f48fb1" opacity="0.42"/>
+</svg>`;
+}
+
+function svgFireDragon() {
+  return `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="fd1" cx="38%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#ffcc80"/>
+      <stop offset="50%" stop-color="#f4511e"/>
+      <stop offset="100%" stop-color="#b71c1c"/>
+    </radialGradient>
+    <radialGradient id="fglow" cx="50%" cy="60%" r="50%">
+      <stop offset="0%" stop-color="#ff6d00" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#ff6d00" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="75" cy="85" rx="68" ry="65" fill="url(#fglow)"/>
+  <path d="M108 108 Q140 116 137 140 Q116 126 106 114 Z" fill="#e64a19"/>
+  <path d="M137 140 Q148 124 142 112 Q134 128 137 140 Z" fill="#ff6d00"/>
+  <path d="M40 82 Q8 48 20 22 Q30 12 42 28 Q34 54 44 76 Z" fill="#e53935" stroke="#b71c1c" stroke-width="1"/>
+  <path d="M40 82 Q44 52 56 32" stroke="#ff8a65" stroke-width="1.5" fill="none" opacity="0.55"/>
+  <path d="M110 82 Q142 48 130 22 Q120 12 108 28 Q116 54 106 76 Z" fill="#e53935" stroke="#b71c1c" stroke-width="1"/>
+  <path d="M110 82 Q106 52 94 32" stroke="#ff8a65" stroke-width="1.5" fill="none" opacity="0.55"/>
+  <ellipse cx="75" cy="103" rx="36" ry="28" fill="url(#fd1)"/>
+  <ellipse cx="75" cy="108" rx="20" ry="14" fill="#fff9c4" opacity="0.75"/>
+  <ellipse cx="75" cy="81" rx="18" ry="12" fill="url(#fd1)"/>
+  <ellipse cx="75" cy="60" rx="26" ry="25" fill="url(#fd1)"/>
+  <path d="M65 40 Q58 18 66 8 Q69 24 72 35 Z" fill="#ff6d00"/>
+  <path d="M65 40 Q62 28 66 8" stroke="#ffcc00" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <path d="M85 40 Q92 18 84 8 Q81 24 78 35 Z" fill="#ff6d00"/>
+  <path d="M85 40 Q88 28 84 8" stroke="#ffcc00" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <ellipse cx="64" cy="58" rx="8" ry="9" fill="#fff9c4"/>
+  <ellipse cx="86" cy="58" rx="8" ry="9" fill="#fff9c4"/>
+  <circle cx="66" cy="59" r="5" fill="#880e4f"/>
+  <circle cx="88" cy="59" r="5" fill="#880e4f"/>
+  <circle cx="65" cy="57" r="2" fill="white"/>
+  <circle cx="87" cy="57" r="2" fill="white"/>
+  <circle cx="70" cy="70" r="2" fill="#880e4f" opacity="0.6"/>
+  <circle cx="80" cy="70" r="2" fill="#880e4f" opacity="0.6"/>
+  <path d="M64 74 L68 79 L75 76 L82 79 L86 74" stroke="#7f0000" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>`;
+}
+
+function svgDivineDragon() {
+  return `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="dv1" cx="40%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#ead8ff"/>
+      <stop offset="50%" stop-color="#9c27b0"/>
+      <stop offset="100%" stop-color="#4a148c"/>
+    </radialGradient>
+    <radialGradient id="daura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ce93d8" stop-opacity="0.48"/>
+      <stop offset="70%" stop-color="#9c27b0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#9c27b0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="75" cy="80" r="70" fill="url(#daura)"/>
+  <circle cx="75" cy="80" r="60" stroke="#ce93d8" stroke-width="1" fill="none" opacity="0.38"/>
+  <circle cx="75" cy="80" r="66" stroke="#ffd700" stroke-width="0.8" fill="none" opacity="0.28"/>
+  <path d="M108 110 Q142 118 140 143 Q118 130 106 116 Z" fill="#7b1fa2"/>
+  <path d="M42 88 Q6 52 14 16 Q17 6 30 16 Q24 46 38 80 Z" fill="#9c27b0" opacity="0.88"/>
+  <path d="M42 88 Q20 58 26 32" stroke="#ffd700" stroke-width="1.5" fill="none" opacity="0.65"/>
+  <path d="M42 88 Q24 70 30 48" stroke="#ffd700" stroke-width="1" fill="none" opacity="0.45"/>
+  <path d="M108 88 Q144 52 136 16 Q133 6 120 16 Q126 46 112 80 Z" fill="#9c27b0" opacity="0.88"/>
+  <path d="M108 88 Q130 58 124 32" stroke="#ffd700" stroke-width="1.5" fill="none" opacity="0.65"/>
+  <path d="M108 88 Q126 70 120 48" stroke="#ffd700" stroke-width="1" fill="none" opacity="0.45"/>
+  <ellipse cx="75" cy="106" rx="34" ry="27" fill="url(#dv1)"/>
+  <ellipse cx="75" cy="110" rx="19" ry="14" fill="#ffd700" opacity="0.68"/>
+  <circle cx="75" cy="66" r="26" fill="url(#dv1)"/>
+  <polygon points="68,43 64,24 72,37" fill="#ffd700" stroke="#fff8dc" stroke-width="0.6"/>
+  <polygon points="75,41 75,20 78,37" fill="#ffd700" stroke="#fff8dc" stroke-width="0.6"/>
+  <polygon points="82,43 86,24 78,37" fill="#ffd700" stroke="#fff8dc" stroke-width="0.6"/>
+  <circle cx="64" cy="62" r="10" fill="#ffd700"/>
+  <circle cx="86" cy="62" r="10" fill="#ffd700"/>
+  <circle cx="64" cy="62" r="7.5" fill="white"/>
+  <circle cx="86" cy="62" r="7.5" fill="white"/>
+  <circle cx="65" cy="63" r="5" fill="#4a148c"/>
+  <circle cx="87" cy="63" r="5" fill="#4a148c"/>
+  <circle cx="64" cy="61" r="2" fill="#ffd700"/>
+  <circle cx="86" cy="61" r="2" fill="#ffd700"/>
+  <text x="16" y="37" font-size="13" fill="#ffd700" opacity="0.88">✦</text>
+  <text x="122" y="40" font-size="11" fill="#ffd700" opacity="0.8">✦</text>
+  <text x="128" y="100" font-size="9" fill="#ffd700" opacity="0.7">✦</text>
+  <text x="16" y="102" font-size="10" fill="#ffd700" opacity="0.7">✦</text>
+  <text x="60" y="148" font-size="11" fill="#ffd700" opacity="0.65">✦</text>
+</svg>`;
+}
+
+function svgRainbowDragon() {
+  return `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rb1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#f44336"/>
+      <stop offset="20%"  stop-color="#ff9800"/>
+      <stop offset="40%"  stop-color="#ffeb3b"/>
+      <stop offset="60%"  stop-color="#4caf50"/>
+      <stop offset="80%"  stop-color="#2196f3"/>
+      <stop offset="100%" stop-color="#9c27b0"/>
+    </linearGradient>
+    <linearGradient id="rb2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#9c27b0"/>
+      <stop offset="33%"  stop-color="#2196f3"/>
+      <stop offset="66%"  stop-color="#4caf50"/>
+      <stop offset="100%" stop-color="#f44336"/>
+    </linearGradient>
+    <radialGradient id="rbaura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="white" stop-opacity="0.55"/>
+      <stop offset="55%"  stop-color="#e040fb" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#e040fb" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="75" cy="78" r="70" fill="url(#rbaura)"/>
+  <ellipse cx="75" cy="30" rx="28" ry="8" fill="none" stroke="url(#rb1)" stroke-width="4.5" opacity="0.92"/>
+  <path d="M108 110 Q143 118 141 145 Q119 132 106 116 Z" fill="url(#rb1)"/>
+  <path d="M40 85 Q4 46 10 8 Q14 0 28 10 Q20 42 36 78 Z" fill="url(#rb1)" opacity="0.88"/>
+  <path d="M40 85 Q16 56 22 28" stroke="white" stroke-width="1.8" fill="none" opacity="0.55"/>
+  <path d="M40 85 Q22 70 28 46" stroke="white" stroke-width="1.2" fill="none" opacity="0.38"/>
+  <path d="M110 85 Q146 46 140 8 Q136 0 122 10 Q130 42 114 78 Z" fill="url(#rb2)" opacity="0.88"/>
+  <path d="M110 85 Q134 56 128 28" stroke="white" stroke-width="1.8" fill="none" opacity="0.55"/>
+  <path d="M110 85 Q128 70 122 46" stroke="white" stroke-width="1.2" fill="none" opacity="0.38"/>
+  <ellipse cx="75" cy="105" rx="33" ry="27" fill="url(#rb1)"/>
+  <ellipse cx="75" cy="108" rx="18" ry="13" fill="white" opacity="0.58"/>
+  <ellipse cx="75" cy="63" rx="25" ry="24" fill="url(#rb1)"/>
+  <polygon points="66,43 62,23 70,37" fill="#ffd700" stroke="white" stroke-width="0.8"/>
+  <polygon points="84,43 88,23 80,37" fill="#ffd700" stroke="white" stroke-width="0.8"/>
+  <circle cx="64" cy="60" r="9" fill="white"/>
+  <circle cx="86" cy="60" r="9" fill="white"/>
+  <circle cx="65" cy="61" r="6" fill="url(#rb1)"/>
+  <circle cx="87" cy="61" r="6" fill="url(#rb2)"/>
+  <circle cx="63" cy="59" r="2.5" fill="white"/>
+  <circle cx="85" cy="59" r="2.5" fill="white"/>
+  <text x="10"  y="44"  font-size="15" fill="#ffd700">★</text>
+  <text x="126" y="47"  font-size="13" fill="#ffd700">★</text>
+  <text x="132" y="97"  font-size="11" fill="#e040fb">★</text>
+  <text x="8"   y="97"  font-size="11" fill="#e040fb">★</text>
+  <text x="58"  y="148" font-size="12" fill="#ffd700">★</text>
+  <text x="80"  y="150" font-size="10" fill="#e040fb">★</text>
+</svg>`;
+}
+
+function getDragonSVG(level) {
+  if (level >= 30) return svgRainbowDragon();
+  if (level >= 20) return svgDivineDragon();
+  if (level >= 10) return svgFireDragon();
+  if (level >= 5)  return svgBabyDragon();
+  return svgEgg();
+}
+
+function updateDragonPanel() {
+  const panel = document.getElementById('dragon-panel');
+  if (!panel || !currentUser) return;
   const { exp } = loadExp();
   const level = expToLevel(exp);
   const expInLevel = exp % 100;
-  document.getElementById('dragon-icon').textContent = getDragonIcon(level);
-  document.querySelector('.dragon-level').textContent = `Lv.${level} ${getDragonName(level)}`;
+  document.getElementById('dragon-svg-wrap').innerHTML = getDragonSVG(level);
+  document.getElementById('dragon-level-text').textContent = `Lv.${level} ${getDragonName(level)}`;
   document.querySelector('.dragon-exp-bar').style.width = `${expInLevel}%`;
-  document.querySelector('.dragon-exp-label').textContent = `けいけんち ${expInLevel} / 100`;
+  document.getElementById('dragon-exp-label').textContent = `EXP ${expInLevel} / 100`;
 }
+
 function addExp(amount) {
   if (!currentUser) return null;
   const data = loadExp();
   const oldLevel = expToLevel(data.exp);
+  const oldStage = getDragonStage(oldLevel);
   data.exp += amount;
   saveExp(data);
   const newLevel = expToLevel(data.exp);
-  updateDragonBar();
-  return newLevel > oldLevel ? newLevel : null;
+  const newStage = getDragonStage(newLevel);
+  updateDragonPanel();
+  if (newLevel > oldLevel) {
+    return { level: newLevel, oldLevel, evolved: newStage > oldStage };
+  }
+  return null;
 }
-function showLevelUp(level) {
+
+function showLevelUp({ level, oldLevel, evolved }) {
   const overlay = document.getElementById('levelup-overlay');
-  document.getElementById('levelup-dragon').textContent = getDragonIcon(level);
-  document.getElementById('levelup-level').textContent = `レベル ${level} に なった！`;
+  document.getElementById('levelup-svg-wrap').innerHTML = getDragonSVG(level);
+  document.getElementById('levelup-text').textContent = evolved ? 'しんか！✨' : 'レベルアップ！🎉';
+  document.getElementById('levelup-sub').textContent  = evolved ? getDragonName(level) + ' に なった！' : '';
+  document.getElementById('levelup-level').textContent = `Lv.${oldLevel} → Lv.${level}`;
   overlay.classList.add('show');
 }
 function hideLevelUp() {
