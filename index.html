@@ -597,14 +597,6 @@
   }
 
   /* ===== スマホ地図：高さ基準レイアウト ===== */
-  /*
-   * PCはそのまま（flex:1 で残り高さ全部を使う現状維持）。
-   * スマホではヘッダー+操作バーが縦を圧迫するため、
-   * .map-wrap を 75dvh 固定にして地図エリアを確保する。
-   *
-   * ※ #japan-svg は width:100%;height:100% + preserveAspectRatio="xMidYMid meet" のまま。
-   *   width:auto にすると viewBox 比率でSVGが横幅を超え左右が clip されるため変更しない。
-   */
   @media (max-width: 768px) {
     /* 地図画面：スクロール許可（確定バーや操作ボタンが隠れないように） */
     #chizu-screen.active {
@@ -613,13 +605,100 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    /* 地図エリアを 75dvh に固定 → 地図が大きく表示される */
+    /* 地図エリアを 75dvh に固定（縦向き） */
     .map-wrap {
       flex: 0 0 75dvh;
       height: 75dvh;
       min-height: unset;
     }
   }
+
+  /* ===== スマホ横向き：地図を 85dvh に拡大 ===== */
+  /* 横向き時は height が小さいので max-height で端末判定 */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #chizu-screen.active {
+      height: auto;
+      min-height: 100dvh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .map-wrap {
+      flex: 0 0 85dvh;
+      height: 85dvh;
+      min-height: unset;
+    }
+  }
+
+  /* ===== 縦向き案内オーバーレイ ===== */
+  #chizu-portrait-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #e0f7fa 0%, #fce4ec 100%);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    text-align: center;
+    padding: 24px;
+    gap: 16px;
+  }
+  #chizu-portrait-overlay .p-icon { font-size: 64px; line-height: 1; }
+  #chizu-portrait-overlay .p-msg {
+    font-size: clamp(22px, 6vw, 32px);
+    font-weight: bold;
+    color: #e91e63;
+    line-height: 1.5;
+  }
+  #chizu-portrait-overlay .p-sub {
+    font-size: 15px;
+    color: #888;
+  }
+  /* スマホ縦向きのみ表示（chizu-screen が active のとき） */
+  @media (max-width: 600px) and (orientation: portrait) {
+    #chizu-screen.active #chizu-portrait-overlay { display: flex; }
+  }
+
+  /* ===== 横向きヒントバー ===== */
+  #chizu-rotate-hint {
+    display: none;           /* PC では非表示 */
+    width: 100%;
+    padding: 5px 12px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+    color: #555;
+    background: rgba(255, 248, 180, 0.85);
+    border-bottom: 1px solid #f9a825;
+    flex-shrink: 0;
+  }
+  @media (max-width: 600px) {
+    #chizu-rotate-hint { display: block; }
+  }
+
+  /* ===== ピンチヒント ===== */
+  #chizu-pinch-hint {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.62);
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: inherit;
+    padding: 7px 18px;
+    border-radius: 20px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 30;
+    white-space: nowrap;
+  }
+  #chizu-pinch-hint.show { opacity: 1; }
+
+  /* ピンチズーム中：カーソルをグラブに */
+  .map-wrap.panning { cursor: grabbing; }
 
   /* スマートフォン（480px以下） */
   @media (max-width: 480px) {
@@ -746,6 +825,16 @@
 
 <!-- ===== 6. ちずゲーム画面 ===== -->
 <div id="chizu-screen" class="screen">
+  <!-- スマホ縦向き時のオーバーレイ（CSS @media で自動表示） -->
+  <div id="chizu-portrait-overlay">
+    <div class="p-icon">📱</div>
+    <p class="p-msg">よこむきの方が<br>あそびやすいよ！</p>
+    <p class="p-sub">↔️ スマホを よこむきにしてね</p>
+  </div>
+
+  <!-- スマホ向け横向きヒント -->
+  <div id="chizu-rotate-hint">📱↔️ スマホは よこむきにしてね</div>
+
   <div class="chizu-top">
     <div style="width:100%;background:#e0e0e0;border-radius:8px;height:8px;margin-bottom:6px;overflow:hidden">
       <div id="chizu-pbar" style="height:100%;background:linear-gradient(90deg,#43a047,#1de9b6);border-radius:8px;width:0%;transition:width 0.4s"></div>
@@ -755,8 +844,10 @@
     <p id="chizu-timer"></p>
   </div>
   <div class="map-wrap">
-    <svg id="japan-svg" width="100%" style="display:block"></svg>
+    <svg id="japan-svg" width="100%" style="display:block;transform-origin:0 0"></svg>
     <div id="pref-tooltip"></div>
+    <!-- ピンチ操作ヒント（ゲーム開始時に数秒表示） -->
+    <div id="chizu-pinch-hint">🤏 ひろげてから タップしてね</div>
   </div>
 
   <!-- 小さい県ボタンバー -->
@@ -1757,7 +1848,9 @@ async function buildMap() {
   }
 
   // ── ツールチップ表示ヘルパー ──
-  // viewBox が動的に更新されるため svgEl.viewBox.baseVal から取得して変換
+  // CSS transform（ピンチズーム）を考慮した座標変換:
+  //   1. viewBox → SVGレイアウト座標（preserveAspectRatio meet）
+  //   2. レイアウト座標 → 視覚座標（CSS transform: translate+scale）
   function showTip(d) {
     if (!tooltip) return;
     const pid  = CODE_TO_ID[d.properties.id];
@@ -1765,19 +1858,30 @@ async function buildMap() {
     if (!pref) return;
     const c = pathGen.centroid(d);
     if (!isFinite(c[0])) return;
-    const vb    = svgEl.viewBox.baseVal;
-    const rect  = svgEl.getBoundingClientRect();
-    const scale = Math.min(rect.width / vb.width, rect.height / vb.height);
-    const offX  = (rect.width  - scale * vb.width)  / 2;
-    const offY  = (rect.height - scale * vb.height) / 2;
+    const vb   = svgEl.viewBox.baseVal;
+    // map-wrap の実サイズ = SVG のレイアウトサイズ（CSS transform前）
+    const wrap = svgEl.parentElement;
+    const lW   = wrap.clientWidth;
+    const lH   = wrap.clientHeight;
+    // viewBox → レイアウト変換スケール（meet）
+    const vs   = Math.min(lW / vb.width, lH / vb.height);
+    const oX   = (lW - vs * vb.width)  / 2;
+    const oY   = (lH - vs * vb.height) / 2;
+    // レイアウト座標
+    const lx   = oX + (c[0] - vb.x) * vs;
+    const ly   = oY + (c[1] - vb.y) * vs;
+    // CSS transform 適用（ピンチズーム対応）
+    const { scale: s, tx, ty } = _mapZoom;
     tooltip.textContent = pref.name;
-    tooltip.style.left  = (offX + (c[0] - vb.x) * scale) + 'px';
-    tooltip.style.top   = (offY + (c[1] - vb.y) * scale) + 'px';
+    tooltip.style.left  = (tx + lx * s) + 'px';
+    tooltip.style.top   = (ty + ly * s) + 'px';
     tooltip.classList.add('show');
   }
   function hideTip() { if (tooltip) tooltip.classList.remove('show'); }
 
   function fireSelect(d) {
+    // ピンチ中・パン中は選択をキャンセル
+    if (_shouldCancelSelect()) return;
     const pid = CODE_TO_ID[d.properties.id];
     if (pid) handlePrefSelect(pid);
   }
@@ -1789,8 +1893,16 @@ async function buildMap() {
 // ======================================================
 let cz = {};
 
+function showPinchHint() {
+  const el = document.getElementById('chizu-pinch-hint');
+  if (!el) return;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
 async function startChizuGame(level) {
   clearChizuTimer();
+  resetMapZoom();       // ズームをリセット
   showScreen('chizu-screen');
 
   if (level === 'learn') {
@@ -1803,6 +1915,7 @@ async function startChizuGame(level) {
     await buildMap();
     document.getElementById('japan-svg').className = 'easy-mode';
     document.getElementById('chizu-q-text').textContent = '👇 けんを タップして なまえを たしかめよう！';
+    showPinchHint();
     return;
   }
 
@@ -1815,6 +1928,7 @@ async function startChizuGame(level) {
   await buildMap();
   document.getElementById('japan-svg').className = level === 'easy' ? 'easy-mode' : '';
   renderChizuQ();
+  showPinchHint();
 }
 
 // ── 選択状態の管理 ──────────────────────────────────────
@@ -1939,10 +2053,147 @@ function clearChizuTimer() {
 }
 function chizuQuit() { clearChizuTimer(); showScreen('title-screen'); }
 
+// ======================================================
+// ちずゲーム — ピンチズーム / パン
+// ======================================================
+let _mapZoom = { scale: 1, tx: 0, ty: 0 };
+let _pinch   = null;   // ピンチ開始情報
+let _pan     = null;   // パン開始情報
+let _isPinching = false;
+let _isPanning  = false;
+
+const MAP_MIN_SCALE = 1;
+const MAP_MAX_SCALE = 4;
+const PAN_THRESHOLD = 6; // px
+
+function applyMapTransform() {
+  const svgEl = document.getElementById('japan-svg');
+  if (!svgEl) return;
+  const { scale, tx, ty } = _mapZoom;
+  svgEl.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+}
+
+function resetMapZoom() {
+  _mapZoom = { scale: 1, tx: 0, ty: 0 };
+  _isPinching = false;
+  _isPanning  = false;
+  applyMapTransform();
+  const wrap = document.querySelector('.map-wrap');
+  if (wrap) wrap.classList.remove('panning');
+}
+
+function clampMapTranslate() {
+  const wrap = document.querySelector('.map-wrap');
+  if (!wrap) return;
+  const W = wrap.clientWidth;
+  const H = wrap.clientHeight;
+  const s = _mapZoom.scale;
+  _mapZoom.tx = Math.max(W * (1 - s), Math.min(0, _mapZoom.tx));
+  _mapZoom.ty = Math.max(H * (1 - s), Math.min(0, _mapZoom.ty));
+}
+
+function initMapPinchZoom() {
+  const wrap = document.querySelector('.map-wrap');
+  if (!wrap || wrap._pinchInited) return;
+  wrap._pinchInited = true;
+
+  let _lastTapMs = 0;
+
+  wrap.addEventListener('touchstart', (e) => {
+    if (e.touches.length >= 2) {
+      // ── ピンチ開始 ──
+      _isPinching = true;
+      _isPanning  = false;
+      const t1 = e.touches[0], t2 = e.touches[1];
+      _pinch = {
+        startDist:  Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY),
+        startScale: _mapZoom.scale,
+        midX: (t1.clientX + t2.clientX) / 2 - wrap.getBoundingClientRect().left,
+        midY: (t1.clientY + t2.clientY) / 2 - wrap.getBoundingClientRect().top,
+        startTx: _mapZoom.tx,
+        startTy: _mapZoom.ty,
+      };
+      e.preventDefault();
+    } else if (e.touches.length === 1) {
+      // ── パン開始 / ダブルタップ検出 ──
+      const t = e.touches[0];
+      _pan = { startX: t.clientX, startY: t.clientY,
+               startTx: _mapZoom.tx, startTy: _mapZoom.ty };
+      _isPanning = false;
+
+      const now = Date.now();
+      if (now - _lastTapMs < 280 && _mapZoom.scale > 1) {
+        // ダブルタップ → ズームリセット
+        resetMapZoom();
+        e.preventDefault();
+        _lastTapMs = 0;
+        return;
+      }
+      _lastTapMs = now;
+    }
+  }, { passive: false });
+
+  wrap.addEventListener('touchmove', (e) => {
+    if (e.touches.length >= 2 && _pinch) {
+      // ── ピンチズーム ──
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const newScale = Math.max(MAP_MIN_SCALE,
+                         Math.min(MAP_MAX_SCALE,
+                           _pinch.startScale * dist / _pinch.startDist));
+      // フォーカス点を固定したまま拡縮
+      const ratio = newScale / _pinch.startScale;
+      _mapZoom.scale = newScale;
+      _mapZoom.tx    = _pinch.midX - (_pinch.midX - _pinch.startTx) * ratio;
+      _mapZoom.ty    = _pinch.midY - (_pinch.midY - _pinch.startTy) * ratio;
+      clampMapTranslate();
+      applyMapTransform();
+      e.preventDefault();
+
+    } else if (e.touches.length === 1 && _pan) {
+      const t = e.touches[0];
+      const dx = t.clientX - _pan.startX;
+      const dy = t.clientY - _pan.startY;
+      if (!_isPanning && (Math.abs(dx) > PAN_THRESHOLD || Math.abs(dy) > PAN_THRESHOLD)) {
+        // ズーム中のみパン（等倍ではスクロールに任せる）
+        if (_mapZoom.scale > 1) _isPanning = true;
+      }
+      if (_isPanning) {
+        _mapZoom.tx = _pan.startTx + dx;
+        _mapZoom.ty = _pan.startTy + dy;
+        clampMapTranslate();
+        applyMapTransform();
+        wrap.classList.add('panning');
+        e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      _isPinching = false;
+      _pinch = null;
+    }
+    if (e.touches.length === 0) {
+      setTimeout(() => {
+        _isPanning = false;
+        wrap.classList.remove('panning');
+      }, 0);
+      _pan = null;
+    }
+  }, { passive: true });
+}
+
+// ピンチ中・パン中は府県選択をキャンセルする（buildMap 内の fireSelect から参照）
+function _shouldCancelSelect() {
+  return _isPinching || _isPanning;
+}
+
 // ページ読み込み後の初期化
 window.addEventListener('load', () => {
   loadGeoData().catch(() => {});
   renderUserGrid();
+  initMapPinchZoom();   // ピンチズーム初期化
   // Enterキーでダイアログ確定
   const inp = document.getElementById('user-name-input');
   if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') userDialogOk(); });
