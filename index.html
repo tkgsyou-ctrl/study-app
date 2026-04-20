@@ -280,10 +280,14 @@
 
   /* ===== ちずゲーム ===== */
   .subject-btn.chizu { background: #e0f2f1; color: #004d40; }
+  .subject-btn.eigo  { background: #ede7f6; color: #4527a0; }
   .mode-btn.easy     { background: #e8f5e9; border-color: #81c784; color: #1b5e20; }
   .mode-btn.normal   { background: #fff3e0; border-color: #ffb74d; color: #e65100; }
   .mode-btn.hard     { background: #ffebee; border-color: #ef9a9a; color: #b71c1c; }
   .mode-btn.learn    { background: #e8eaf6; border-color: #7986cb; color: #1a237e; }
+  .mode-btn.alphabet { background: #ede7f6; border-color: #9575cd; color: #4527a0; }
+  .mode-btn.tango    { background: #fce4ec; border-color: #f48fb1; color: #880e4f; }
+  .mode-btn.aisatsu  { background: #e3f2fd; border-color: #90caf9; color: #0d47a1; }
 
   /* --- レイアウト --- */
   #chizu-screen.active {
@@ -1137,6 +1141,9 @@
     <button class="subject-btn rika" onclick="selectSubject('rika')">
       <span class="icon">🌿</span>りか
     </button>
+    <button class="subject-btn eigo" onclick="selectSubject('eigo')" style="grid-column:span 2">
+      <span class="icon">🔤</span>えいご
+    </button>
     <button class="subject-btn chizu" onclick="selectSubject('chizu')" style="grid-column:span 2">
       <span class="icon">🗾</span>ちずゲーム
     </button>
@@ -1523,6 +1530,126 @@ const RIKA_POOLS = {
   ]
 };
 
+// ======================================================
+// えいご 問題プール
+// ======================================================
+const EIGO_POOLS = {
+  alphabet: [
+    // ── 大文字の読み方 ──
+    { q: 'おおもじ「A」の よみかたは？', ans: 'えー',      wrongs: ['びー', 'しー', 'でぃー'],   explanation: '「A」は えいごの さいしょの もじです。よみかたは「えー」です。' },
+    { q: 'おおもじ「B」の よみかたは？', ans: 'びー',      wrongs: ['えー', 'しー', 'でぃー'],   explanation: '「B」は えいごの 2ばんめの もじです。よみかたは「びー」です。' },
+    { q: 'おおもじ「C」の よみかたは？', ans: 'しー',      wrongs: ['えー', 'びー', 'でぃー'],   explanation: '「C」は まるい かたちの もじです。よみかたは「しー」です。' },
+    { q: 'おおもじ「D」の よみかたは？', ans: 'でぃー',    wrongs: ['えー', 'びー', 'しー'],     explanation: '「D」は かまぼこのような かたちです。よみかたは「でぃー」です。' },
+    { q: 'おおもじ「E」の よみかたは？', ans: 'いー',      wrongs: ['えー', 'えふ', 'じー'],     explanation: '「E」は よこぼうが 3ほん の もじです。よみかたは「いー」です。' },
+    { q: 'おおもじ「F」の よみかたは？', ans: 'えふ',      wrongs: ['いー', 'じー', 'えいち'],   explanation: '「F」は よこぼうが 2ほん の もじです。よみかたは「えふ」です。' },
+    { q: 'おおもじ「G」の よみかたは？', ans: 'じー',      wrongs: ['えふ', 'えいち', 'あい'],   explanation: '「G」は「C」に よこぼうが ついた かたちです。よみかたは「じー」です。' },
+    { q: 'おおもじ「H」の よみかたは？', ans: 'えいち',    wrongs: ['じー', 'あい', 'じぇい'],   explanation: '「H」は はしごの ような かたちです。よみかたは「えいち」です。' },
+    { q: 'おおもじ「I」の よみかたは？', ans: 'あい',      wrongs: ['えいち', 'じぇい', 'けい'], explanation: '「I」は まっすぐな たてぼう の もじです。よみかたは「あい」です。' },
+    { q: 'おおもじ「J」の よみかたは？', ans: 'じぇい',    wrongs: ['あい', 'けい', 'える'],     explanation: '「J」は かぎのような かたちです。よみかたは「じぇい」です。' },
+    { q: 'おおもじ「K」の よみかたは？', ans: 'けい',      wrongs: ['じぇい', 'える', 'えむ'],   explanation: '「K」は たてぼうに ななめぼうが 2ほん の もじです。よみかたは「けい」です。' },
+    { q: 'おおもじ「L」の よみかたは？', ans: 'える',      wrongs: ['けい', 'えむ', 'えぬ'],     explanation: '「L」は たてぼうと よこぼうの もじです。よみかたは「える」です。' },
+    { q: 'おおもじ「M」の よみかたは？', ans: 'えむ',      wrongs: ['える', 'えぬ', 'おー'],     explanation: '「M」は やまが 2つある かたちです。よみかたは「えむ」です。' },
+    { q: 'おおもじ「N」の よみかたは？', ans: 'えぬ',      wrongs: ['えむ', 'おー', 'ぴー'],     explanation: '「N」は ジグザグな かたちです。よみかたは「えぬ」です。' },
+    { q: 'おおもじ「O」の よみかたは？', ans: 'おー',      wrongs: ['えぬ', 'ぴー', 'きゅー'],   explanation: '「O」は まるい かたちです。よみかたは「おー」です。' },
+    { q: 'おおもじ「P」の よみかたは？', ans: 'ぴー',      wrongs: ['おー', 'きゅー', 'あーる'], explanation: '「P」は たてぼうに まるが ついた かたちです。よみかたは「ぴー」です。' },
+    { q: 'おおもじ「R」の よみかたは？', ans: 'あーる',    wrongs: ['ぴー', 'えす', 'てぃー'],   explanation: '「R」は「P」に あしが ついた かたちです。よみかたは「あーる」です。' },
+    // ── 小文字 → 大文字 ──
+    { q: 'こもじ「a」の おおもじは？', ans: 'A', wrongs: ['B', 'C', 'D'], explanation: '「a」は「A」の こもじです。えんぴつで かくと まるに ぼうが ついた かたちです。' },
+    { q: 'こもじ「b」の おおもじは？', ans: 'B', wrongs: ['A', 'C', 'D'], explanation: '「b」は「B」の こもじです。たてぼうに まるが ついた かたちです。' },
+    { q: 'こもじ「c」の おおもじは？', ans: 'C', wrongs: ['A', 'B', 'D'], explanation: '「c」は「C」の こもじで、かたちが よく にています。' },
+    { q: 'こもじ「d」の おおもじは？', ans: 'D', wrongs: ['A', 'B', 'C'], explanation: '「d」は「b」と にていますが、まるが さかです。おおもじは「D」です。' },
+    { q: 'こもじ「e」の おおもじは？', ans: 'E', wrongs: ['F', 'G', 'H'], explanation: '「e」は まるに よこぼうが ついた かたちです。おおもじは「E」です。' },
+    { q: 'こもじ「f」の おおもじは？', ans: 'F', wrongs: ['E', 'G', 'H'], explanation: '「f」は かぎのような かたちです。おおもじは「F」です。' },
+    { q: 'こもじ「g」の おおもじは？', ans: 'G', wrongs: ['E', 'F', 'H'], explanation: '「g」は まるに しっぽが ついた かたちです。おおもじは「G」です。' },
+    { q: 'こもじ「h」の おおもじは？', ans: 'H', wrongs: ['E', 'F', 'G'], explanation: '「h」は たてぼうに アーチが ついた かたちです。おおもじは「H」です。' },
+    { q: 'こもじ「i」の おおもじは？', ans: 'I', wrongs: ['J', 'K', 'L'], explanation: '「i」は てんが ついた たてぼうです。おおもじは「I」です。' },
+    { q: 'こもじ「j」の おおもじは？', ans: 'J', wrongs: ['I', 'K', 'L'], explanation: '「j」は てんが ついた かぎ かたちです。おおもじは「J」です。' },
+    { q: 'こもじ「k」の おおもじは？', ans: 'K', wrongs: ['I', 'J', 'L'], explanation: '「k」は たてぼうに ななめぼうが ついた かたちです。おおもじは「K」です。' },
+    { q: 'こもじ「l」の おおもじは？', ans: 'L', wrongs: ['I', 'J', 'K'], explanation: '「l」は まっすぐな たてぼう です。おおもじは「L」です。' },
+    { q: 'こもじ「m」の おおもじは？', ans: 'M', wrongs: ['N', 'O', 'P'], explanation: '「m」は アーチが 2つある かたちです。おおもじは「M」です。' },
+    { q: 'こもじ「n」の おおもじは？', ans: 'N', wrongs: ['M', 'O', 'P'], explanation: '「n」は アーチが 1つの かたちです。おおもじは「N」です。' },
+    { q: 'こもじ「o」の おおもじは？', ans: 'O', wrongs: ['M', 'N', 'P'], explanation: '「o」は ちいさな まる です。おおもじは「O」です。' },
+  ],
+  tango: [
+    // ── 動物 ──
+    { q: '「dog」は にほんごで？',      ans: 'いぬ',         wrongs: ['ねこ', 'とり', 'うさぎ'],           explanation: '「dog（ドッグ）」は いぬの えいごです。D から はじまります。' },
+    { q: '「cat」は にほんごで？',      ans: 'ねこ',         wrongs: ['いぬ', 'とり', 'さかな'],           explanation: '「cat（キャット）」は ねこの えいごです。C から はじまります。' },
+    { q: '「bird」は にほんごで？',     ans: 'とり',         wrongs: ['いぬ', 'ねこ', 'うさぎ'],           explanation: '「bird（バード）」は とりの えいごです。B から はじまります。' },
+    { q: '「fish」は にほんごで？',     ans: 'さかな',       wrongs: ['とり', 'いぬ', 'ねこ'],             explanation: '「fish（フィッシュ）」は さかなの えいごです。F から はじまります。' },
+    { q: '「rabbit」は にほんごで？',   ans: 'うさぎ',       wrongs: ['いぬ', 'ねこ', 'さかな'],           explanation: '「rabbit（ラビット）」は うさぎの えいごです。R から はじまります。' },
+    { q: '「bear」は にほんごで？',     ans: 'くま',         wrongs: ['ぞう', 'うま', 'さる'],             explanation: '「bear（ベアー）」は くまの えいごです。B から はじまります。' },
+    { q: '「elephant」は にほんごで？', ans: 'ぞう',         wrongs: ['くま', 'うま', 'ライオン'],          explanation: '「elephant（エレファント）」は ぞうの えいごです。E から はじまります。' },
+    { q: '「lion」は にほんごで？',     ans: 'ライオン',     wrongs: ['くま', 'ぞう', 'うま'],             explanation: '「lion（ライオン）」は ライオンの えいごです。L から はじまります。' },
+    { q: '「horse」は にほんごで？',    ans: 'うま',         wrongs: ['くま', 'ぞう', 'さる'],             explanation: '「horse（ホース）」は うまの えいごです。H から はじまります。' },
+    { q: '「monkey」は にほんごで？',   ans: 'さる',         wrongs: ['くま', 'うま', 'ぞう'],             explanation: '「monkey（マンキー）」は さるの えいごです。M から はじまります。' },
+    // ── 食べ物 ──
+    { q: '「apple」は にほんごで？',    ans: 'りんご',       wrongs: ['バナナ', 'ごはん', 'パン'],          explanation: '「apple（アップル）」は りんごの えいごです。A から はじまります。' },
+    { q: '「banana」は にほんごで？',   ans: 'バナナ',       wrongs: ['りんご', 'ごはん', 'たまご'],        explanation: '「banana（バナナ）」は バナナの えいごです。B から はじまります。' },
+    { q: '「rice」は にほんごで？',     ans: 'ごはん・おこめ', wrongs: ['パン', 'バナナ', 'たまご'],        explanation: '「rice（ライス）」は おこめや ごはんの えいごです。R から はじまります。' },
+    { q: '「bread」は にほんごで？',    ans: 'パン',         wrongs: ['ごはん', 'バナナ', 'たまご'],        explanation: '「bread（ブレッド）」は パンの えいごです。B から はじまります。' },
+    { q: '「milk」は にほんごで？',     ans: 'ぎゅうにゅう', wrongs: ['みず', 'ジュース', 'たまご'],        explanation: '「milk（ミルク）」は ぎゅうにゅうの えいごです。M から はじまります。' },
+    { q: '「egg」は にほんごで？',      ans: 'たまご',       wrongs: ['パン', 'ごはん', 'バナナ'],          explanation: '「egg（エッグ）」は たまごの えいごです。E から はじまります。' },
+    { q: '「water」は にほんごで？',    ans: 'みず',         wrongs: ['ぎゅうにゅう', 'ジュース', 'たまご'], explanation: '「water（ウォーター）」は みずの えいごです。W から はじまります。' },
+    // ── 色 ──
+    { q: '「red」は にほんごで？',      ans: 'あか',         wrongs: ['あお', 'みどり', 'きいろ'],          explanation: '「red（レッド）」は あかの えいごです。R から はじまります。' },
+    { q: '「blue」は にほんごで？',     ans: 'あお',         wrongs: ['あか', 'みどり', 'しろ'],            explanation: '「blue（ブルー）」は あおの えいごです。B から はじまります。' },
+    { q: '「green」は にほんごで？',    ans: 'みどり',       wrongs: ['あか', 'あお', 'きいろ'],            explanation: '「green（グリーン）」は みどりの えいごです。G から はじまります。' },
+    { q: '「yellow」は にほんごで？',   ans: 'きいろ',       wrongs: ['あか', 'あお', 'しろ'],              explanation: '「yellow（イエロー）」は きいろの えいごです。Y から はじまります。' },
+    { q: '「white」は にほんごで？',    ans: 'しろ',         wrongs: ['くろ', 'あか', 'あお'],              explanation: '「white（ホワイト）」は しろの えいごです。W から はじまります。' },
+    { q: '「black」は にほんごで？',    ans: 'くろ',         wrongs: ['しろ', 'あか', 'あお'],              explanation: '「black（ブラック）」は くろの えいごです。B から はじまります。' },
+    // ── 数字 ──
+    { q: '「one」は にほんごで？',      ans: 'いち',         wrongs: ['に', 'さん', 'し'],                  explanation: '「one（ワン）」は 1（いち）の えいごです。' },
+    { q: '「two」は にほんごで？',      ans: 'に',           wrongs: ['いち', 'さん', 'し'],                explanation: '「two（トゥー）」は 2（に）の えいごです。' },
+    { q: '「three」は にほんごで？',    ans: 'さん',         wrongs: ['いち', 'に', 'し'],                  explanation: '「three（スリー）」は 3（さん）の えいごです。' },
+    { q: '「four」は にほんごで？',     ans: 'し・よん',     wrongs: ['さん', 'ご', 'ろく'],                explanation: '「four（フォー）」は 4（し・よん）の えいごです。' },
+    { q: '「five」は にほんごで？',     ans: 'ご',           wrongs: ['し・よん', 'ろく', 'なな'],           explanation: '「five（ファイブ）」は 5（ご）の えいごです。' },
+    { q: '「ten」は にほんごで？',      ans: 'じゅう',       wrongs: ['く', 'はち', 'なな'],                explanation: '「ten（テン）」は 10（じゅう）の えいごです。' },
+    // ── 体の部位 ──
+    { q: '「eye」は にほんごで？',      ans: 'め',           wrongs: ['みみ', 'はな', 'くち'],              explanation: '「eye（アイ）」は めの えいごです。E から はじまります。' },
+    { q: '「ear」は にほんごで？',      ans: 'みみ',         wrongs: ['め', 'はな', 'くち'],                explanation: '「ear（イアー）」は みみの えいごです。E から はじまります。' },
+    { q: '「nose」は にほんごで？',     ans: 'はな',         wrongs: ['め', 'みみ', 'くち'],                explanation: '「nose（ノーズ）」は はなの えいごです。N から はじまります。' },
+    { q: '「mouth」は にほんごで？',    ans: 'くち',         wrongs: ['め', 'みみ', 'て'],                  explanation: '「mouth（マウス）」は くちの えいごです。M から はじまります。' },
+    { q: '「hand」は にほんごで？',     ans: 'て',           wrongs: ['あし', 'め', 'みみ'],                explanation: '「hand（ハンド）」は てや てのひらの えいごです。H から はじまります。' },
+    // ── 文房具 ──
+    { q: '「pencil」は にほんごで？',   ans: 'えんぴつ',     wrongs: ['ほん', 'かばん', 'けしゴム'],        explanation: '「pencil（ペンシル）」は えんぴつの えいごです。P から はじまります。' },
+    { q: '「book」は にほんごで？',     ans: 'ほん',         wrongs: ['えんぴつ', 'かばん', 'けしゴム'],    explanation: '「book（ブック）」は ほんの えいごです。B から はじまります。' },
+    { q: '「bag」は にほんごで？',      ans: 'かばん',       wrongs: ['えんぴつ', 'ほん', 'けしゴム'],      explanation: '「bag（バッグ）」は かばんの えいごです。B から はじまります。' },
+    { q: '「eraser」は にほんごで？',   ans: 'けしゴム',     wrongs: ['えんぴつ', 'ほん', 'かばん'],        explanation: '「eraser（イレイザー）」は けしゴムの えいごです。E から はじまります。' },
+  ],
+  aisatsu: [
+    { q: '「Hello」は にほんごで？',              ans: 'こんにちは',          wrongs: ['おはよう', 'こんばんは', 'さようなら'],        explanation: '「Hello（ハロー）」は ひとに あったとき つかう あいさつです。' },
+    { q: '「Good morning」は にほんごで？',       ans: 'おはようございます',  wrongs: ['こんにちは', 'こんばんは', 'さようなら'],      explanation: '「Good morning（グッド モーニング）」は あさの あいさつです。' },
+    { q: '「Good evening」は にほんごで？',       ans: 'こんばんは',          wrongs: ['おはよう', 'こんにちは', 'さようなら'],        explanation: '「Good evening（グッド イーブニング）」は よるの あいさつです。' },
+    { q: '「Good night」は にほんごで？',         ans: 'おやすみなさい',      wrongs: ['こんばんは', 'さようなら', 'ありがとう'],       explanation: '「Good night（グッド ナイト）」は ねるまえの あいさつです。' },
+    { q: '「Good bye」は にほんごで？',           ans: 'さようなら',          wrongs: ['こんにちは', 'おはよう', 'ありがとう'],         explanation: '「Good bye（グッバイ）」は わかれるときに いう あいさつです。' },
+    { q: '「Thank you」は にほんごで？',          ans: 'ありがとう',          wrongs: ['どういたしまして', 'ごめんなさい', 'すみません'], explanation: '「Thank you（サンキュー）」は かんしゃの きもちを つたえる ことばです。' },
+    { q: '「You\'re welcome」は にほんごで？',    ans: 'どういたしまして',    wrongs: ['ありがとう', 'ごめんなさい', 'すみません'],      explanation: '「You\'re welcome」は「ありがとう」に こたえる ことばです。' },
+    { q: '「Sorry」は にほんごで？',             ans: 'ごめんなさい',        wrongs: ['ありがとう', 'どういたしまして', 'すみません'],  explanation: '「Sorry（ソーリー）」は あやまるときに つかう ことばです。' },
+    { q: '「Excuse me」は にほんごで？',         ans: 'すみません',          wrongs: ['ごめんなさい', 'ありがとう', 'おねがいします'],  explanation: '「Excuse me（エクスキューズ ミー）」は ひとに こえを かけるときの ことばです。' },
+    { q: '「Yes」は にほんごで？',               ans: 'はい',                wrongs: ['いいえ', 'そうです', 'わかりません'],             explanation: '「Yes（イエス）」は うなずくときに つかう ことばです。' },
+    { q: '「No」は にほんごで？',                ans: 'いいえ',              wrongs: ['はい', 'そうです', 'わかりません'],              explanation: '「No（ノー）」は ちがうときや ことわるときに つかう ことばです。' },
+    { q: '「Please」は にほんごで？',            ans: 'おねがいします',      wrongs: ['ありがとう', 'すみません', 'どうぞ'],            explanation: '「Please（プリーズ）」は なにかを おねがいするときに つかいます。' },
+    { q: '「Help!」は にほんごで？',             ans: 'たすけて！',          wrongs: ['おはよう', 'ありがとう', 'すみません'],           explanation: '「Help（ヘルプ）」は こまったときや きけんなときに さけぶ ことばです。' },
+    { q: '「What\'s your name?」は にほんごで？', ans: 'あなたの なまえは？', wrongs: ['げんきですか？', 'なんさいですか？', 'どこですか？'], explanation: '「What\'s your name?」は あいてに なまえを きく ときの いいかたです。' },
+    { q: '「How are you?」は にほんごで？',      ans: 'げんきですか？',      wrongs: ['なまえは？', 'なんさいですか？', 'どこですか？'],   explanation: '「How are you?（ハウ アー ユー）」は あいてのようすを たずねる ことばです。' },
+    { q: '「I\'m fine.」は にほんごで？',        ans: 'げんきです',          wrongs: ['わかりません', 'おはよう', 'ありがとう'],         explanation: '「I\'m fine.」は「How are you?」に こたえるときに つかいます。' },
+    { q: '「Nice to meet you.」は にほんごで？', ans: 'はじめまして',        wrongs: ['さようなら', 'ありがとう', 'すみません'],         explanation: '「Nice to meet you.（ナイス トゥ ミート ユー）」は はじめて あうひとへの あいさつです。' },
+    { q: '「See you!」は にほんごで？',          ans: 'またね！',            wrongs: ['こんにちは', 'おはよう', 'ありがとう'],           explanation: '「See you!（シー ユー）」は「またね」や「またあいましょう」の いみです。' },
+    { q: '「How old are you?」は にほんごで？',  ans: 'なんさいですか？',    wrongs: ['なまえは？', 'げんきですか？', 'どこですか？'],    explanation: '「How old are you?」は あいての としを たずねる ことばです。' },
+    { q: '「Happy birthday!」は にほんごで？',   ans: 'おたんじょうびおめでとう！', wrongs: ['おはよう', 'ありがとう', 'さようなら'],   explanation: '「Happy birthday!（ハッピー バースデー）」は たんじょうびに いう ことばです。' },
+    { q: '「Good luck!」は にほんごで？',        ans: 'がんばって！',        wrongs: ['ありがとう', 'おはよう', 'さようなら'],           explanation: '「Good luck!（グッド ラック）」は はげますときに つかう ことばです。' },
+    { q: '「Congratulations!」は にほんごで？',  ans: 'おめでとう！',        wrongs: ['ありがとう', 'すみません', 'さようなら'],         explanation: '「Congratulations!（コングラチュレーションズ）」は おいわいの ことばです。' },
+    { q: '「Be careful!」は にほんごで？',       ans: 'きをつけて！',        wrongs: ['がんばって', 'ありがとう', 'すみません'],         explanation: '「Be careful!（ビー ケアフル）」は あぶないときに ちゅういを うながす ことばです。' },
+    { q: '「Let\'s go!」は にほんごで？',        ans: 'いこう！',            wrongs: ['はじめよう', 'まって', 'ありがとう'],             explanation: '「Let\'s go!（レッツ ゴー）」は いっしょに でかけるときなどに つかいます。' },
+    { q: '「I don\'t know.」は にほんごで？',    ans: 'わかりません',        wrongs: ['げんきです', 'すみません', 'はい'],               explanation: '「I don\'t know.」は わからないときに つかう ことばです。' },
+    { q: '「Wait!」は にほんごで？',             ans: 'まって！',            wrongs: ['いこう！', 'すみません', 'ありがとう'],           explanation: '「Wait!（ウェイト）」は あいてに まつよう つたえる ことばです。' },
+    { q: '「I like it!」は にほんごで？',        ans: 'すきです！',          wrongs: ['きらいです', 'わかりません', 'ありがとう'],       explanation: '「I like it!（アイ ライク イット）」は すきなものを つたえる ことばです。' },
+    { q: '「Come here!」は にほんごで？',        ans: 'こっちに きて！',     wrongs: ['いこう！', 'まって！', 'ありがとう'],             explanation: '「Come here!（カム ヒア）」は あいてを よびよせる ことばです。' },
+    { q: '「I\'m hungry.」は にほんごで？',      ans: 'おなかが すきました', wrongs: ['げんきです', 'ねむいです', 'おなかが いっぱい'], explanation: '「I\'m hungry.（アイム ハングリー）」は おなかが すいたときの ことばです。' },
+    { q: '「That\'s right!」は にほんごで？',    ans: 'そのとおり！',        wrongs: ['ちがいます', 'わかりません', 'すみません'],       explanation: '「That\'s right!（ザッツ ライト）」は あいてのいったことが あっているときに つかいます。' },
+  ]
+};
+
 // プールから重複なしで出題するジェネレータを作る
 function makePoolGen(pool) {
   let remaining = [];
@@ -1566,6 +1693,11 @@ const GENERATORS = {
   rika: {
     shokubutsu: makePoolGen(RIKA_POOLS.shokubutsu),
     tenki:      makePoolGen(RIKA_POOLS.tenki),
+  },
+  eigo: {
+    alphabet: makePoolGen(EIGO_POOLS.alphabet),
+    tango:    makePoolGen(EIGO_POOLS.tango),
+    aisatsu:  makePoolGen(EIGO_POOLS.aisatsu),
   }
 };
 
@@ -1607,6 +1739,11 @@ const MODES = {
     { key: 'shokubutsu', label: '🌱 しょくぶつと こんちゅう', cls: 'shokubutsu' },
     { key: 'tenki',      label: '⛅ てんきと じしゃく・でんき', cls: 'tenki'      },
   ],
+  eigo: [
+    { key: 'alphabet', label: '🔡 アルファベット（大文字・小文字）', cls: 'alphabet' },
+    { key: 'tango',    label: '📝 たんご（どうぶつ・たべもの など）', cls: 'tango'    },
+    { key: 'aisatsu',  label: '👋 あいさつ（Hello / Thank you など）', cls: 'aisatsu'  },
+  ],
   chizu: [
     { key: 'learn',  label: '📖 まなぶ（けんめいを おぼえよう）', cls: 'learn'  },
     { key: 'easy',   label: '🟢 かんたん（ちほう色わけあり）',    cls: 'easy'   },
@@ -1621,7 +1758,7 @@ function selectSubject(subject) {
   document.getElementById('mode-buttons').innerHTML = modes.map(m =>
     `<button class="mode-btn ${m.cls}" onclick="startQuiz('${subject}','${m.key}')">${m.label}</button>`
   ).join('');
-  const subjectTitles = { sansu:'さんすう — もんだいをえらぼう', kokugo:'こくご — もんだいをえらぼう', shakai:'しゃかい — もんだいをえらぼう', rika:'りか — もんだいをえらぼう', chizu:'ちずゲーム — レベルをえらぼう' };
+  const subjectTitles = { sansu:'さんすう — もんだいをえらぼう', kokugo:'こくご — もんだいをえらぼう', shakai:'しゃかい — もんだいをえらぼう', rika:'りか — もんだいをえらぼう', eigo:'えいご — もんだいをえらぼう', chizu:'ちずゲーム — レベルをえらぼう' };
   document.getElementById('mode-title').textContent = subjectTitles[subject] || subject;
   // ちずゲームはモードボタンで startChizuGame を呼ぶ
   if (subject === 'chizu') {
