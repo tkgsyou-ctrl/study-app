@@ -244,6 +244,22 @@
   .result-list li.ng { background: #ffebee; }
 
   /* ===== 解説ボックス ===== */
+  /* にがてモードバナー */
+  #weak-mode-banner {
+    display: none;
+    background: #fff3e0;
+    color: #bf360c;
+    border: 2px solid #ff7043;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: clamp(13px, 3.2vw, 15px);
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+    width: 100%;
+    max-width: 560px;
+    animation: fadeInUp 0.3s ease;
+  }
   #explanation-box {
     margin-top: 18px;
     padding: 14px 16px;
@@ -269,7 +285,7 @@
 
   .btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
 
-  /* ===== きろく（親向け）===== */
+  /* ===== きろく ===== */
   #records-screen { background: #f5f5f5; min-height: 100vh; }
   .records-card { max-width: 700px; width: 100%; background: #fff; border-radius: 20px; padding: 24px 28px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-bottom: 24px; overflow-x: auto; }
   .records-card h3 { font-size: 20px; margin-bottom: 12px; color: #3f51b5; }
@@ -277,6 +293,40 @@
   .history-table th { background: #e8eaf6; padding: 8px 10px; text-align: left; white-space: nowrap; }
   .history-table td { padding: 8px 10px; border-bottom: 1px solid #eeeeee; white-space: nowrap; }
   canvas { max-width: 100%; display: block; margin: 0 auto; }
+  /* タブ */
+  .rec-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; max-width: 700px; width: 100%; }
+  .rec-tab { flex: 1 1 auto; padding: 10px 6px; border: 2px solid #c5cae9; border-radius: 12px; background: #fff; color: #555; font-size: 14px; font-family: inherit; font-weight: bold; cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .rec-tab.active { background: #3f51b5; color: #fff; border-color: #3f51b5; }
+  .rec-panel { display: none; width: 100%; max-width: 700px; }
+  .rec-panel.active { display: block; }
+  /* にがて分析 */
+  .weak-bar-wrap { margin-bottom: 10px; }
+  .weak-bar-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 2px; }
+  .weak-bar-label span:last-child { font-weight: bold; }
+  .weak-bar-track { background: #eee; border-radius: 6px; height: 18px; width: 100%; overflow: hidden; }
+  .weak-bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s; }
+  .weak-top-list { list-style: none; margin-top: 8px; }
+  .weak-top-list li { padding: 8px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 14px; background: #fff3e0; border-left: 4px solid #ff9800; }
+  .weak-top-list li .wq-count { font-weight: bold; color: #e65100; }
+  /* 週間レポート */
+  .week-stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .week-stat-box { flex: 1 1 120px; background: #e8eaf6; border-radius: 14px; padding: 12px 10px; text-align: center; }
+  .week-stat-box .ws-num { font-size: 26px; font-weight: bold; color: #3f51b5; }
+  .week-stat-box .ws-label { font-size: 12px; color: #666; margin-top: 2px; }
+  .week-diff { font-size: 13px; margin-top: 4px; }
+  .week-diff.up   { color: #43a047; }
+  .week-diff.down { color: #e53935; }
+  .week-diff.same { color: #9e9e9e; }
+  .week-highlight { padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; font-size: 14px; }
+  .week-highlight.good { background: #e8f5e9; border-left: 4px solid #4caf50; }
+  .week-highlight.bad  { background: #ffebee; border-left: 4px solid #f44336; }
+  /* 日別グラフ canvas */
+  #chart-daily { display: block; margin: 0 auto; }
+  /* ほごしゃレポート */
+  .parent-report-box { background: #fffde7; border: 2px dashed #f9a825; border-radius: 16px; padding: 18px 20px; font-size: 15px; line-height: 1.9; color: #4e342e; white-space: pre-wrap; }
+  /* にがて優先ボタン */
+  #weak-practice-btn { margin-top: 10px; width: 100%; background: #fff3e0; color: #e65100; border: 2px solid #ffb74d; border-radius: 50px; padding: 12px; font-size: 16px; font-family: inherit; font-weight: bold; cursor: pointer; }
+  #weak-practice-btn:disabled { opacity: 0.4; cursor: default; }
 
   /* ===== ちずゲーム ===== */
   .subject-btn.chizu { background: #e0f2f1; color: #004d40; }
@@ -1156,6 +1206,7 @@
   <div class="card">
     <h2 id="mode-title">さんすう — もんだいをえらぼう</h2>
     <div class="mode-grid" id="mode-buttons"></div>
+    <button id="weak-practice-btn" onclick="startWeakQuiz()">😣 にがてもんだいを れんしゅう</button>
     <div class="btn-row">
       <button class="btn btn-gray" onclick="showScreen('title-screen')">← もどる</button>
     </div>
@@ -1165,6 +1216,7 @@
 <!-- ===== 3. クイズ画面 ===== -->
 <div id="quiz-screen" class="screen">
   <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  <div id="weak-mode-banner">😣 にがてもんだい れんしゅうちゅう！</div>
   <p id="question-count"></p>
   <div class="card" style="max-width:560px">
     <p id="question-text"></p>
@@ -1262,35 +1314,89 @@
 <!-- ===== 5. きろく画面（親向け）===== -->
 <div id="records-screen" class="screen" style="justify-content:flex-start;padding-top:30px">
   <h2 style="margin-bottom:4px">📊 がくしゅうきろく</h2>
-  <p id="records-user-label" style="font-size:15px;color:#555;margin-bottom:16px"></p>
-  <div class="records-card">
-    <h3>🔢 さんすう — せいかいりつ（なかま別）</h3>
-    <canvas id="chart-sansu" height="200"></canvas>
+  <p id="records-user-label" style="font-size:15px;color:#555;margin-bottom:12px"></p>
+
+  <!-- タブ -->
+  <div class="rec-tabs">
+    <button class="rec-tab active" onclick="switchRecTab('tab-history',this)">📈 きろく</button>
+    <button class="rec-tab" onclick="switchRecTab('tab-weak',this)">😣 にがて</button>
+    <button class="rec-tab" onclick="switchRecTab('tab-weekly',this)">📅 しゅうかん</button>
+    <button class="rec-tab" onclick="switchRecTab('tab-parent',this)">👨‍👩‍👧 ほごしゃ</button>
   </div>
-  <div class="records-card">
-    <h3>📖 こくご — せいかいりつ（なかま別）</h3>
-    <canvas id="chart-kokugo" height="200"></canvas>
+
+  <!-- ① きろくパネル -->
+  <div id="tab-history" class="rec-panel active">
+    <div class="records-card">
+      <h3>🔢 さんすう — せいかいりつ</h3>
+      <canvas id="chart-sansu" height="200"></canvas>
+    </div>
+    <div class="records-card">
+      <h3>📖 こくご — せいかいりつ</h3>
+      <canvas id="chart-kokugo" height="200"></canvas>
+    </div>
+    <div class="records-card">
+      <h3>🌏 しゃかい — せいかいりつ</h3>
+      <canvas id="chart-shakai" height="200"></canvas>
+    </div>
+    <div class="records-card">
+      <h3>🌿 りか — せいかいりつ</h3>
+      <canvas id="chart-rika" height="200"></canvas>
+    </div>
+    <div class="records-card">
+      <h3>🔤 えいご — せいかいりつ</h3>
+      <canvas id="chart-eigo" height="200"></canvas>
+    </div>
+    <div class="records-card">
+      <h3>🗾 ちずゲーム — せいかいりつ</h3>
+      <canvas id="chart-chizu" height="200"></canvas>
+    </div>
+    <div class="records-card">
+      <h3>さいきんのきろく</h3>
+      <table class="history-table" id="history-table">
+        <thead><tr><th>にち</th><th>かもく</th><th>もんだい</th><th>てんすう</th><th>せいかいりつ</th></tr></thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
   </div>
-  <div class="records-card">
-    <h3>🌏 しゃかい — せいかいりつ（なかま別）</h3>
-    <canvas id="chart-shakai" height="200"></canvas>
+
+  <!-- ② にがて分析パネル -->
+  <div id="tab-weak" class="rec-panel">
+    <div class="records-card">
+      <h3>📊 かもく別 せいかいりつ</h3>
+      <div id="weak-bars"></div>
+    </div>
+    <div class="records-card">
+      <h3>🔴 よく まちがえる もんだい TOP3</h3>
+      <ul class="weak-top-list" id="weak-top-list"></ul>
+    </div>
   </div>
-  <div class="records-card">
-    <h3>🌿 りか — せいかいりつ（なかま別）</h3>
-    <canvas id="chart-rika" height="200"></canvas>
+
+  <!-- ③ 週間レポートパネル -->
+  <div id="tab-weekly" class="rec-panel">
+    <div class="records-card">
+      <h3>📅 こんしゅうの まとめ</h3>
+      <div class="week-stat-row" id="week-stats"></div>
+      <div id="week-highlights"></div>
+    </div>
+    <div class="records-card">
+      <h3>📆 ひにち別 もんだいすう</h3>
+      <canvas id="chart-daily" height="200"></canvas>
+    </div>
   </div>
-  <div class="records-card">
-    <h3>🗾 ちずゲーム — せいかいりつ（レベル別）</h3>
-    <canvas id="chart-chizu" height="200"></canvas>
+
+  <!-- ④ 保護者レポートパネル -->
+  <div id="tab-parent" class="rec-panel">
+    <div class="records-card">
+      <h3>👨‍👩‍👧 ほごしゃようレポート</h3>
+      <div class="parent-report-box" id="parent-report-text"></div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-success" id="line-share-btn" onclick="shareToLine()">📱 LINEでシェア</button>
+        <button class="btn btn-gray" onclick="copyReport()">📋 コピー</button>
+      </div>
+    </div>
   </div>
-  <div class="records-card">
-    <h3>さいきんのきろく（ぜんぶ）</h3>
-    <table class="history-table" id="history-table">
-      <thead><tr><th>にち</th><th>かもく</th><th>もんだい</th><th>てんすう</th><th>せいかいりつ</th></tr></thead>
-      <tbody id="history-body"></tbody>
-    </table>
-  </div>
-  <button class="btn btn-gray" onclick="showScreen('title-screen')">← もどる</button>
+
+  <button class="btn btn-gray" style="margin-top:8px" onclick="showScreen('title-screen')">← もどる</button>
 </div>
 
 <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
@@ -1766,7 +1872,52 @@ function selectSubject(subject) {
       `<button class="mode-btn ${m.cls}" onclick="startChizuGame('${m.key}')">${m.label}</button>`
     ).join('');
   }
+  // にがて優先ボタンの有効/無効
+  updateWeakBtn(subject);
   showScreen('mode-screen');
+}
+
+function updateWeakBtn(subject) {
+  const btn = document.getElementById('weak-practice-btn');
+  if (!btn) return;
+  if (subject === 'chizu') { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  const wrongData = loadWrongAnswers();
+  const count = Object.values(wrongData).filter(w => w.subject === subject).length;
+  btn.disabled = count === 0;
+  btn.textContent = count > 0
+    ? `😣 にがてもんだいを れんしゅう（${count}もん）`
+    : '😣 にがてもんだいが まだありません';
+}
+
+function startWeakQuiz() {
+  const subject = state.subject;
+  if (!subject) return;
+
+  const wrongData = loadWrongAnswers();
+  // このユーザーのこの科目の不正解問題を不正解数が多い順に並べる
+  const sorted = Object.values(wrongData)
+    .filter(w => w.subject === subject && w.q && w.opts && w.ans !== undefined)
+    .sort((a, b) => b.count - a.count);
+
+  // 不正解問題がない場合
+  if (!sorted.length) {
+    alert('まだ にがてもんだいが ありません！\nまず つうじょうもードで やってみよう！');
+    return;
+  }
+
+  // 10問になるまで循環させて埋める（不正解数が多い問題を先頭に保つ）
+  const questions = [];
+  let idx = 0;
+  while (questions.length < 10) {
+    questions.push(sorted[idx % sorted.length]);
+    idx++;
+  }
+
+  state = { subject, mode: 'weak', questions, current: 0, score: 0, answers: [] };
+  document.getElementById('retry-btn').onclick = () => startWeakQuiz();
+  showScreen('quiz-screen');
+  renderQuestion();
 }
 
 function startQuiz(subject, mode) {
@@ -1780,6 +1931,10 @@ function startQuiz(subject, mode) {
 
 function renderQuestion() {
   hideExplanation();
+  // にがてモードバナーの表示切替
+  const banner = document.getElementById('weak-mode-banner');
+  if (banner) banner.style.display = state.mode === 'weak' ? '' : 'none';
+
   const { questions, current } = state;
   const total = questions.length;
   document.getElementById('progress-bar').style.width = `${(current / total) * 100}%`;
@@ -1812,10 +1967,18 @@ function answer(chosen, correct, btn) {
   showFeedback(isCorrect);
 
   if (isCorrect) state.score++;
-  state.answers.push({ q: state.questions[state.current].q, chosen, correct, ok: isCorrect });
+  const _curQ = state.questions[state.current];
+  state.answers.push({ q: _curQ.q, chosen, correct, ok: isCorrect });
+
+  // 不正解ならにがてデータに記録
+  // にがてモード中は元のモードで保存してカウントを正しく積算する
+  if (!isCorrect) {
+    const saveMode = state.mode === 'weak' ? (_curQ.mode || state.mode) : state.mode;
+    saveWrongAnswer(state.subject, saveMode, _curQ);
+  }
 
   // 解説を表示
-  const expl = state.questions[state.current].explanation || '';
+  const expl = _curQ.explanation || '';
   state.current++;
 
   // 経験値加算（結果を保存）
@@ -2318,10 +2481,29 @@ function hideLevelUp() {
 // ======================================================
 // localStorage
 // ======================================================
-const LS_KEY = 'study_app_records_v1';
+const LS_KEY      = 'study_app_records_v1';
+const LS_WRONG_KEY = 'study_app_wrong_v1';
 
 function userRecordKey(name) {
   return name ? `${LS_KEY}_user_${name}` : LS_KEY;
+}
+function userWrongKey(name) {
+  return name ? `${LS_WRONG_KEY}_user_${name}` : LS_WRONG_KEY;
+}
+function loadWrongAnswers() {
+  try { return JSON.parse(localStorage.getItem(userWrongKey(currentUser))) || {}; }
+  catch { return {}; }
+}
+function saveWrongAnswer(subject, mode, questionObj) {
+  const data = loadWrongAnswers();
+  const key = `${subject}__${mode}__${questionObj.q}`;
+  if (!data[key]) {
+    data[key] = { subject, mode, q: questionObj.q, ans: questionObj.ans,
+                  opts: questionObj.opts, explanation: questionObj.explanation || '', count: 0 };
+  }
+  data[key].count++;
+  data[key].lastWrong = new Date().toISOString();
+  localStorage.setItem(userWrongKey(currentUser), JSON.stringify(data));
 }
 
 function loadRecords() {
@@ -2344,22 +2526,48 @@ const MODE_LABELS = {
   hira: 'ひらがなことば', kanji: 'かんじよみ',
   machi: 'まちとしごと', kisetu: 'きせつとぎょうじ',
   shokubutsu: 'しょくぶつ・むし', tenki: 'てんき・でんき',
-  easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい', learn: 'まなぶ'
+  alphabet: 'アルファベット', tango: 'たんご', aisatsu: 'あいさつ',
+  easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい', learn: 'まなぶ',
+  weak: 'にがてれんしゅう'
 };
-const SUBJECT_LABELS = { sansu: 'さんすう', kokugo: 'こくご', shakai: 'しゃかい', rika: 'りか', chizu: 'ちずゲーム' };
+const SUBJECT_LABELS = { sansu:'さんすう', kokugo:'こくご', shakai:'しゃかい', rika:'りか', eigo:'えいご', chizu:'ちずゲーム' };
+const SUBJECT_ICONS  = { sansu:'🔢', kokugo:'📖', shakai:'🌏', rika:'🌿', eigo:'🔤', chizu:'🗾' };
 
+// ── タブ切替 ──────────────────────────────────────────
+function switchRecTab(tabId, btn) {
+  document.querySelectorAll('.rec-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rec-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+  const all = loadRecords();
+  if (tabId === 'tab-weak')   renderWeakAnalysis();
+  if (tabId === 'tab-weekly') renderWeeklyReport(all);
+  if (tabId === 'tab-parent') renderParentReport(all);
+}
+
+// ── メイン renderRecords ─────────────────────────────
 function renderRecords() {
   const label = document.getElementById('records-user-label');
   if (label) label.textContent = currentUser ? `👤 ${currentUser} のきろく` : '';
+  // 最初はきろくタブを表示
+  document.querySelectorAll('.rec-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rec-tab').forEach(b => b.classList.remove('active'));
+  const firstPanel = document.getElementById('tab-history');
+  const firstBtn   = document.querySelector('.rec-tab');
+  if (firstPanel) firstPanel.classList.add('active');
+  if (firstBtn)   firstBtn.classList.add('active');
+
   const all = loadRecords();
   renderHistoryTable(all);
-  drawSubjectChart('chart-sansu',  all.filter(r => r.subject === 'sansu'),  ['tashi','hiki','kuku'],          { tashi:'#f9a825', hiki:'#e91e63', kuku:'#7e57c2' });
-  drawSubjectChart('chart-kokugo', all.filter(r => r.subject === 'kokugo'), ['hira','kanji'],                 { hira:'#f06292', kanji:'#ff8f00' });
-  drawSubjectChart('chart-shakai', all.filter(r => r.subject === 'shakai'), ['machi','kisetu'],               { machi:'#42a5f5', kisetu:'#5c6bc0' });
-  drawSubjectChart('chart-rika',   all.filter(r => r.subject === 'rika'),   ['shokubutsu','tenki'],           { shokubutsu:'#66bb6a', tenki:'#26c6da' });
-  drawSubjectChart('chart-chizu',  all.filter(r => r.subject === 'chizu'),  ['easy','normal','hard'],         { easy:'#66bb6a', normal:'#ffa726', hard:'#ef5350' });
+  drawSubjectChart('chart-sansu',  all.filter(r => r.subject === 'sansu'),  ['tashi','hiki','kuku'],            { tashi:'#f9a825', hiki:'#e91e63', kuku:'#7e57c2' });
+  drawSubjectChart('chart-kokugo', all.filter(r => r.subject === 'kokugo'), ['hira','kanji'],                   { hira:'#f06292', kanji:'#ff8f00' });
+  drawSubjectChart('chart-shakai', all.filter(r => r.subject === 'shakai'), ['machi','kisetu'],                 { machi:'#42a5f5', kisetu:'#5c6bc0' });
+  drawSubjectChart('chart-rika',   all.filter(r => r.subject === 'rika'),   ['shokubutsu','tenki'],             { shokubutsu:'#66bb6a', tenki:'#26c6da' });
+  drawSubjectChart('chart-eigo',   all.filter(r => r.subject === 'eigo'),   ['alphabet','tango','aisatsu'],     { alphabet:'#9575cd', tango:'#f48fb1', aisatsu:'#64b5f6' });
+  drawSubjectChart('chart-chizu',  all.filter(r => r.subject === 'chizu'),  ['easy','normal','hard'],           { easy:'#66bb6a', normal:'#ffa726', hard:'#ef5350' });
 }
 
+// ── 履歴テーブル ──────────────────────────────────────
 function renderHistoryTable(recs) {
   const tbody = document.getElementById('history-body');
   const recent = [...recs].reverse().slice(0, 20);
@@ -2377,6 +2585,7 @@ function renderHistoryTable(recs) {
   if (!recent.length) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa">まだきろくがありません</td></tr>';
 }
 
+// ── 折れ線グラフ ──────────────────────────────────────
 function drawSubjectChart(canvasId, recs, modes, colors) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -2389,11 +2598,9 @@ function drawSubjectChart(canvasId, recs, modes, colors) {
   const W = canvas.width - pad.l - pad.r;
   const H = canvas.height - pad.t - pad.b;
 
-  // 軸
   ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + H); ctx.lineTo(pad.l + W, pad.t + H); ctx.stroke();
 
-  // Y軸ラベル＋グリッド
   ctx.fillStyle = '#888'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
   [0, 25, 50, 75, 100].forEach(v => {
     const y = pad.t + H - (v / 100) * H;
@@ -2402,17 +2609,15 @@ function drawSubjectChart(canvasId, recs, modes, colors) {
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + W, y); ctx.stroke();
   });
 
-  // 凡例
   let legendX = pad.l;
   modes.forEach(m => {
     ctx.fillStyle = colors[m];
     ctx.fillRect(legendX, canvas.height - 18, 14, 10);
     ctx.fillStyle = '#555'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
     ctx.fillText(MODE_LABELS[m] || m, legendX + 16, canvas.height - 8);
-    legendX += 100;
+    legendX += 110;
   });
 
-  // データなし表示
   const hasData = modes.some(m => recs.filter(r => r.mode === m).length > 0);
   if (!hasData) {
     ctx.fillStyle = '#bbb'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
@@ -2420,7 +2625,6 @@ function drawSubjectChart(canvasId, recs, modes, colors) {
     return;
   }
 
-  // 折れ線
   modes.forEach(mode => {
     const mRecs = recs.filter(r => r.mode === mode).slice(-10);
     if (mRecs.length < 1) return;
@@ -2435,6 +2639,311 @@ function drawSubjectChart(canvasId, recs, modes, colors) {
       ctx.fillStyle = colors[mode];
       ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fill();
     });
+  });
+}
+
+// ── にがて分析 ────────────────────────────────────────
+function renderWeakAnalysis() {
+  const all = loadRecords();
+  const wrongData = loadWrongAnswers();
+
+  // 科目×モード別の正答率を集計
+  const statsMap = {}; // key: "subject__mode"
+  all.forEach(r => {
+    const k = `${r.subject}__${r.mode}`;
+    if (!statsMap[k]) statsMap[k] = { subject: r.subject, mode: r.mode, score: 0, total: 0 };
+    statsMap[k].score += r.score;
+    statsMap[k].total += r.total;
+  });
+
+  const barsEl = document.getElementById('weak-bars');
+  if (barsEl) {
+    const entries = Object.values(statsMap)
+      .filter(s => s.total > 0)
+      .sort((a, b) => (a.score / a.total) - (b.score / b.total)); // 正答率が低い順
+
+    if (!entries.length) {
+      barsEl.innerHTML = '<p style="color:#aaa;font-size:14px">まだきろくがありません</p>';
+    } else {
+      barsEl.innerHTML = entries.map(s => {
+        const pct = Math.round((s.score / s.total) * 100);
+        const isWeak = pct <= 60;
+        const barColor = isWeak ? '#ef5350' : (pct >= 80 ? '#4caf50' : '#ffa726');
+        const subLabel = (SUBJECT_ICONS[s.subject] || '') + (SUBJECT_LABELS[s.subject] || s.subject);
+        const modeLabel = MODE_LABELS[s.mode] || s.mode;
+        return `<div class="weak-bar-wrap">
+          <div class="weak-bar-label">
+            <span>${subLabel} › ${modeLabel}${isWeak ? ' 🔴にがて' : ''}</span>
+            <span style="color:${barColor}">${pct}%</span>
+          </div>
+          <div class="weak-bar-track">
+            <div class="weak-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // よく間違える問題 TOP3
+  const topEl = document.getElementById('weak-top-list');
+  if (topEl) {
+    const wrongs = Object.values(wrongData).sort((a, b) => b.count - a.count).slice(0, 3);
+    if (!wrongs.length) {
+      topEl.innerHTML = '<li style="color:#aaa;font-size:14px;list-style:none">まちがえた もんだいが ありません 🎉</li>';
+    } else {
+      topEl.innerHTML = wrongs.map((w, i) => {
+        const sub = (SUBJECT_ICONS[w.subject] || '') + (SUBJECT_LABELS[w.subject] || w.subject);
+        const mode = MODE_LABELS[w.mode] || w.mode;
+        return `<li>
+          <span style="font-size:18px">${['🥇','🥈','🥉'][i]}</span>
+          <strong>${w.q}</strong> → <b>${w.ans}</b>
+          <br><span style="font-size:12px;color:#888">${sub} › ${mode}</span>
+          <span class="wq-count"> ✕${w.count}かい</span>
+        </li>`;
+      }).join('');
+    }
+  }
+}
+
+// ── 週間レポート ──────────────────────────────────────
+function getWeekRange(offsetWeeks) {
+  const now = new Date();
+  const dow = now.getDay(); // 0=日
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((dow + 6) % 7) + offsetWeeks * 7);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { start: monday, end: sunday };
+}
+
+function filterByWeek(recs, offsetWeeks) {
+  const { start, end } = getWeekRange(offsetWeeks);
+  return recs.filter(r => {
+    const d = new Date(r.date);
+    return d >= start && d <= end;
+  });
+}
+
+function renderWeeklyReport(all) {
+  const thisWeek = filterByWeek(all, 0);
+  const lastWeek = filterByWeek(all, -1);
+
+  const calcStats = recs => ({
+    total: recs.reduce((s, r) => s + r.total, 0),
+    score: recs.reduce((s, r) => s + r.score, 0),
+    pct:   recs.length ? Math.round(recs.reduce((s, r) => s + r.score, 0) / recs.reduce((s, r) => s + r.total, 0) * 100) : 0
+  });
+
+  const tw = calcStats(thisWeek);
+  const lw = calcStats(lastWeek);
+
+  const diffHtml = (cur, prev, unit = '') => {
+    if (prev === 0 && cur === 0) return '';
+    const d = cur - prev;
+    if (d > 0)  return `<div class="week-diff up">▲ ${d}${unit} ふえた</div>`;
+    if (d < 0)  return `<div class="week-diff down">▼ ${Math.abs(d)}${unit} へった</div>`;
+    return `<div class="week-diff same">→ せんしゅうと おなじ</div>`;
+  };
+
+  const statsEl = document.getElementById('week-stats');
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <div class="week-stat-box">
+        <div class="ws-num">${tw.total}</div>
+        <div class="ws-label">もんだいすう</div>
+        ${diffHtml(tw.total, lw.total, 'もん')}
+      </div>
+      <div class="week-stat-box">
+        <div class="ws-num">${tw.score}</div>
+        <div class="ws-label">せいかいすう</div>
+        ${diffHtml(tw.score, lw.score, 'もん')}
+      </div>
+      <div class="week-stat-box">
+        <div class="ws-num">${tw.total ? tw.pct : '--'}%</div>
+        <div class="ws-label">せいかいりつ</div>
+        ${tw.total && lw.total ? diffHtml(tw.pct, lw.pct, '%') : ''}
+      </div>`;
+  }
+
+  // 今週いちばんがんばった科目・にがて科目
+  const subjectStats = {};
+  thisWeek.forEach(r => {
+    if (!subjectStats[r.subject]) subjectStats[r.subject] = { total: 0, score: 0 };
+    subjectStats[r.subject].total += r.total;
+    subjectStats[r.subject].score += r.score;
+  });
+  const subjects = Object.entries(subjectStats);
+
+  let highlightsHtml = '';
+  if (!subjects.length) {
+    highlightsHtml = '<p style="color:#aaa;font-size:14px">こんしゅうの きろくが まだありません</p>';
+  } else {
+    const best = subjects.reduce((a, b) => b[1].total > a[1].total ? b : a);
+    const worst = subjects
+      .filter(([, v]) => v.total >= 3)
+      .sort((a, b) => (a[1].score / a[1].total) - (b[1].score / b[1].total))[0];
+
+    const bestIcon = SUBJECT_ICONS[best[0]] || '';
+    const bestLabel = SUBJECT_LABELS[best[0]] || best[0];
+    highlightsHtml += `<div class="week-highlight good">🏆 いちばん がんばった かもく：<b>${bestIcon}${bestLabel}</b>（${best[1].total}もん）</div>`;
+    if (worst) {
+      const worstPct = Math.round(worst[1].score / worst[1].total * 100);
+      const worstIcon = SUBJECT_ICONS[worst[0]] || '';
+      const worstLabel = SUBJECT_LABELS[worst[0]] || worst[0];
+      highlightsHtml += `<div class="week-highlight bad">📌 にがてな かもく：<b>${worstIcon}${worstLabel}</b>（せいかいりつ ${worstPct}%）</div>`;
+    }
+  }
+  const hlEl = document.getElementById('week-highlights');
+  if (hlEl) hlEl.innerHTML = highlightsHtml;
+
+  // 日別グラフ
+  drawDailyChart(all);
+}
+
+function drawDailyChart(all) {
+  const canvas = document.getElementById('chart-daily');
+  if (!canvas) return;
+  canvas.width = Math.min(640, window.innerWidth - 80);
+  canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 今週7日分のデータ集計
+  const { start } = getWeekRange(0);
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return d;
+  });
+  const dayTotals = days.map(d => {
+    const ds = d.toDateString();
+    return all.filter(r => new Date(r.date).toDateString() === ds)
+               .reduce((s, r) => s + r.total, 0);
+  });
+  const maxVal = Math.max(...dayTotals, 1);
+
+  const pad = { t: 20, r: 10, b: 40, l: 40 };
+  const W = canvas.width - pad.l - pad.r;
+  const H = canvas.height - pad.t - pad.b;
+  const barW = W / 7 * 0.6;
+  const dayNames = ['月','火','水','木','金','土','日'];
+
+  ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + H); ctx.lineTo(pad.l + W, pad.t + H); ctx.stroke();
+
+  // Y軸ラベル
+  ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  [0, Math.ceil(maxVal / 2), maxVal].forEach(v => {
+    const y = pad.t + H - (v / maxVal) * H;
+    ctx.fillText(v, pad.l - 4, y + 4);
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + W, y); ctx.stroke();
+  });
+
+  dayTotals.forEach((val, i) => {
+    const x = pad.l + (i / 7) * W + (W / 7 - barW) / 2;
+    const barH = (val / maxVal) * H;
+    const y = pad.t + H - barH;
+
+    // 今日を強調
+    const isToday = days[i].toDateString() === new Date().toDateString();
+    ctx.fillStyle = isToday ? '#3f51b5' : '#90caf9';
+    if (barH > 0) ctx.fillRect(x, y, barW, barH);
+
+    // 曜日ラベル
+    ctx.fillStyle = isToday ? '#3f51b5' : '#666';
+    ctx.font = isToday ? 'bold 12px sans-serif' : '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(dayNames[i], x + barW / 2, pad.t + H + 16);
+
+    // 値ラベル
+    if (val > 0) {
+      ctx.fillStyle = '#555'; ctx.font = '11px sans-serif';
+      ctx.fillText(val, x + barW / 2, y - 3);
+    }
+  });
+}
+
+// ── 保護者レポート ────────────────────────────────────
+function renderParentReport(all) {
+  const thisWeek = filterByWeek(all, 0);
+  const wrongData = loadWrongAnswers();
+
+  const total = thisWeek.reduce((s, r) => s + r.total, 0);
+  const score = thisWeek.reduce((s, r) => s + r.score, 0);
+  const pct   = total ? Math.round(score / total * 100) : 0;
+  const name  = currentUser || 'お子さま';
+
+  // 科目別集計
+  const subStats = {};
+  thisWeek.forEach(r => {
+    if (!subStats[r.subject]) subStats[r.subject] = { total: 0, score: 0 };
+    subStats[r.subject].total += r.total;
+    subStats[r.subject].score += r.score;
+  });
+  const subEntries = Object.entries(subStats).filter(([, v]) => v.total > 0);
+
+  // よく間違える問題TOP2
+  const topWrong = Object.values(wrongData).sort((a, b) => b.count - a.count).slice(0, 2);
+
+  let report = '';
+  if (!total) {
+    report = `${name}の こんしゅうの きろくは まだありません。\nいっしょに べんきょうを はじめましょう！`;
+  } else {
+    report = `【${name}の こんしゅうの がくしゅうレポート】\n\n`;
+    report += `こんしゅうは ぜんぶで ${total}もん といて、\n`;
+    report += `${score}もん せいかい（せいかいりつ ${pct}%）でした。\n\n`;
+
+    if (subEntries.length) {
+      report += '【かもく別のようす】\n';
+      subEntries.forEach(([subj, v]) => {
+        const p = Math.round(v.score / v.total * 100);
+        const icon = SUBJECT_ICONS[subj] || '';
+        const label = SUBJECT_LABELS[subj] || subj;
+        report += `・${icon}${label}：${v.total}もん（せいかいりつ ${p}%）\n`;
+      });
+      report += '\n';
+    }
+
+    if (topWrong.length) {
+      report += '【にがてな もんだい】\n';
+      topWrong.forEach(w => {
+        const sub = (SUBJECT_ICONS[w.subject] || '') + (SUBJECT_LABELS[w.subject] || w.subject);
+        report += `・${sub}「${w.q}」（${w.count}かい まちがえています）\n`;
+      });
+      report += '\nにがてな もんだいを「にがてもんだいをれんしゅう」ボタンで\nくりかえし れんしゅうさせると よいでしょう。\n';
+    } else {
+      report += 'まちがえた もんだいは ありません。すばらしいです！\n';
+    }
+
+    report += `\n--- べんきょうアプリ より ---`;
+  }
+
+  const el = document.getElementById('parent-report-text');
+  if (el) el.textContent = report;
+}
+
+function shareToLine() {
+  const text = document.getElementById('parent-report-text')?.textContent || '';
+  const encoded = encodeURIComponent(text);
+  window.open(`https://social-plugins.line.me/lineit/share?url=&text=${encoded}`, '_blank');
+}
+
+function copyReport() {
+  const text = document.getElementById('parent-report-text')?.textContent || '';
+  navigator.clipboard.writeText(text).then(() => {
+    alert('コピーしました！');
+  }).catch(() => {
+    // clipboard API not available
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('コピーしました！');
   });
 }
 
