@@ -2147,7 +2147,7 @@ function selectSubject(subject) {
   updateWeakBtn(subject);
   // バトルモードボタンの表示制御（ちずゲームには非対応）
   const battleBtn = document.getElementById('battle-mode-btn-ms');
-  if (battleBtn) battleBtn.style.display = subject === 'chizu' ? 'none' : '';
+  if (battleBtn) battleBtn.style.display = subject === 'chizu' ? 'none' : 'block';
   showScreen('mode-screen');
 }
 
