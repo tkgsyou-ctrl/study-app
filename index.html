@@ -138,6 +138,21 @@
   .mode-btn.kisetu      { background: #e8eaf6; border-color: #7986cb; color: #1a237e; }
   .mode-btn.shokubutsu  { background: #e8f5e9; border-color: #81c784; color: #1b5e20; }
   .mode-btn.tenki       { background: #e0f7fa; border-color: #4dd0e1; color: #006064; }
+  .mode-btn.wari1   { background: #e8f5e9; border-color: #81c784; color: #1b5e20; }
+  .mode-btn.wari2   { background: #fff3e0; border-color: #ffb74d; color: #e65100; }
+  .mode-btn.wari3   { background: #ffebee; border-color: #ef9a9a; color: #b71c1c; }
+  .mode-btn.kanji3  { background: #fbe9e7; border-color: #ff7043; color: #bf360c; }
+  .mode-btn.shakai3 { background: #e1f5fe; border-color: #29b6f6; color: #01579b; }
+  .mode-btn.rika3   { background: #f1f8e9; border-color: #aed581; color: #33691e; }
+  .grade-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: normal;
+    background: rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 1px 7px;
+    margin-top: 2px;
+  }
 
   /* ===== クイズ ===== */
   #progress-bar-wrap {
@@ -1764,6 +1779,42 @@ const KOKUGO_POOLS = {
     { q: '「西」の よみかたは？', ans: 'にし', wrongs: ['ひがし', 'きた', 'みなみ'], explanation: '「西」は にしと よみます。たいようが しずむ ほうこうが にしです。' },
     { q: '「父」の よみかたは？', ans: 'ちち', wrongs: ['はは', 'あに', 'いもうと'], explanation: '「父」は ちちと よみます。おとうさんのことを「父（ちち）」と かくことが あります。' },
     { q: '「母」の よみかたは？', ans: 'はは', wrongs: ['ちち', 'あに', 'いもうと'], explanation: '「母」は ははと よみます。おかあさんのことを「母（はは）」と かくことが あります。' },
+  ],
+  kanji3: [
+    { q: '「開」の よみかたは？', ans: 'ひらく', wrongs: ['とじる', 'しめる', 'おくる'], explanation: '「開」は ひらくと よみます。ドアや まどを 開ける（あける）、はなが 開花（かいか）するなどに つかいます。' },
+    { q: '「館」を つかった ことば「としょかん」の「かん」は？', ans: 'かん', wrongs: ['やかた', 'たて', 'いえ'], explanation: '「館」は かんと よんで、としょかん（本をよむばしょ）や びじゅつかんなどの たてものの なまえに つかいます。' },
+    { q: '「主」の よみかたは？', ans: 'ぬし', wrongs: ['きみ', 'みな', 'かた'], explanation: '「主」は ぬしや しゅと よみます。「主人公（しゅじんこう）」は お話の中心のひとのことです。' },
+    { q: '「羊」の よみかたは？', ans: 'ひつじ', wrongs: ['うし', 'うま', 'やぎ'], explanation: '「羊」は ひつじと よみます。もこもこした けをもつ どうぶつで、けから ウールがとれます。' },
+    { q: '「葉」の よみかたは？', ans: 'は', wrongs: ['き', 'ね', 'くき'], explanation: '「葉」は はと よみます。「葉っぱ（はっぱ）」とも いいます。木や草の みどりの ぶぶんです。' },
+    { q: '「横」の よみかたは？', ans: 'よこ', wrongs: ['たて', 'ひろ', 'ひだり'], explanation: '「横」は よこと よみます。「たて・よこ・ななめ」と いうときの よこです。' },
+    { q: '「温」を つかった「おんど」の「おん」は？', ans: 'おん', wrongs: ['あつ', 'ぬく', 'わた'], explanation: '「温」は おんや あたたかいと よみます。「温度（おんど）」は あたたかさをしめす かずのことです。' },
+    { q: '「荷」を つかった「にもつ」の「に」は？', ans: 'に', wrongs: ['か', 'もの', 'ふ'], explanation: '「荷」は にと よみます。「荷物（にもつ）」は はこんだり おくったりする ものの ことです。' },
+    { q: '「階」を つかった「にかい」の「かい」は？', ans: 'かい', wrongs: ['ちか', 'だん', 'きざ'], explanation: '「階」は かいと よみます。「２階（にかい）」は たてものの 2ばんめの ゆかの ことです。' },
+    { q: '「寒」の よみかたは？', ans: 'さむい', wrongs: ['つめたい', 'あつい', 'すずしい'], explanation: '「寒」は さむいと よみます。ふゆの きびしい さむさを「寒さ（さむさ）」といいます。' },
+    { q: '「感」を つかった「かんじる」の「かん」は？', ans: 'かん', wrongs: ['き', 'こ', 'お'], explanation: '「感」は かんと よみます。「感じる（かんじる）」「感動（かんどう）」などに つかいます。' },
+    { q: '「漢」を つかった「かんじ」の「かん」は？', ans: 'かん', wrongs: ['かた', 'ふみ', 'もじ'], explanation: '「漢」は かんと よみます。「漢字（かんじ）」は にほんごで つかう もじの ひとつです。' },
+    { q: '「急」の よみかたは？', ans: 'いそぐ', wrongs: ['はやい', 'おそい', 'とまる'], explanation: '「急」は いそぐや きゅうと よみます。「急行（きゅうこう）」は とちゅうを とばして はしる でんしゃです。' },
+    { q: '「橋」の よみかたは？', ans: 'はし', wrongs: ['みち', 'かわ', 'みず'], explanation: '「橋」は はしと よみます。かわや たにの うえに かけて わたれるようにした ものです。' },
+    { q: '「曲」の よみかたは？', ans: 'きょく', wrongs: ['うた', 'おと', 'ふし'], explanation: '「曲」は きょくや まがると よみます。おんがくの「曲（きょく）」は うたや えんそうの ことです。' },
+    { q: '「局」を つかった「ゆうびんきょく」の「きょく」は？', ans: 'きょく', wrongs: ['やく', 'しょ', 'かん'], explanation: '「局」は きょくと よみます。「郵便局（ゆうびんきょく）」は てがみや にもつを とどける しせつです。' },
+    { q: '「銀」の よみかたは？', ans: 'ぎん', wrongs: ['きん', 'てつ', 'どう'], explanation: '「銀」は ぎんと よみます。「銀行（ぎんこう）」は おかねを あずかったり かしたりする ばしょです。' },
+    { q: '「苦」の よみかたは？', ans: 'くるしい', wrongs: ['たのしい', 'うれしい', 'かなしい'], explanation: '「苦」は くるしいや くと よみます。「苦手（にがて）」は うまく できない ことの ことです。' },
+    { q: '「軽」の よみかたは？', ans: 'かるい', wrongs: ['おもい', 'おおきい', 'ちいさい'], explanation: '「軽」は かるいと よみます。「軽い（かるい）」は おもさが すくない ことを いいます。' },
+    { q: '「血」の よみかたは？', ans: 'ち', wrongs: ['みず', 'あせ', 'なみだ'], explanation: '「血」は ちと よみます。からだの なかを ながれる あかい えきたいで、さんそや えいようを はこびます。' },
+    { q: '「県」の よみかたは？', ans: 'けん', wrongs: ['と', 'どう', 'ふ'], explanation: '「県」は けんと よみます。にほんには 43の けんが あります。「都道府県（とどうふけん）」の ひとつです。' },
+    { q: '「湖」の よみかたは？', ans: 'みずうみ', wrongs: ['かわ', 'うみ', 'いけ'], explanation: '「湖」は みずうみと よみます。りくちに かこまれた おおきな みずたまりのことです。' },
+    { q: '「幸」の よみかたは？', ans: 'しあわせ', wrongs: ['よろこぶ', 'たのしい', 'うれしい'], explanation: '「幸」は しあわせや さいわい、こうと よみます。「幸せ（しあわせ）」は こころが みちている じょうたいです。' },
+    { q: '「港」の よみかたは？', ans: 'みなと', wrongs: ['うみ', 'かわ', 'えき'], explanation: '「港」は みなとと よみます。ふねが とまったり にもつを のせおろしする ばしょです。' },
+    { q: '「根」の よみかたは？', ans: 'ね', wrongs: ['くき', 'は', 'み'], explanation: '「根」は ねと よみます。しょくぶつの つちの なかに はえて、みずや えいようを すいあげます。' },
+    { q: '「祭」の よみかたは？', ans: 'まつり', wrongs: ['ぎょうじ', 'おわり', 'はじめ'], explanation: '「祭」は まつりと よみます。「お祭り（まつり）」は かみさまを おいわいしたり まちで たのしむ ぎょうじです。' },
+    { q: '「使」の よみかたは？', ans: 'つかう', wrongs: ['つくる', 'おくる', 'もつ'], explanation: '「使」は つかうや しと よみます。「使う（つかう）」は どうぐや ものを りようする ことです。' },
+    { q: '「始」の よみかたは？', ans: 'はじめる', wrongs: ['おわる', 'つづける', 'やめる'], explanation: '「始」は はじめると よみます。「始まる（はじまる）」は なにかが スタートする ことです。' },
+    { q: '「指」の よみかたは？', ans: 'ゆび', wrongs: ['て', 'あし', 'うで'], explanation: '「指」は ゆびと よみます。てや あしの さきに ある ほそい ぶぶんです。' },
+    { q: '「歯」の よみかたは？', ans: 'は', wrongs: ['くち', 'した', 'くちびる'], explanation: '「歯」は はと よみます。くちの なかで ものを かむための かたい ぶぶんです。まいにち みがきましょう。' },
+    { q: '「次」の よみかたは？', ans: 'つぎ', wrongs: ['まえ', 'あと', 'さき'], explanation: '「次」は つぎや じと よみます。「次のひと（つぎのひと）」は そのすぐ あとの ひとのことです。' },
+    { q: '「様」の よみかたは？', ans: 'さま', wrongs: ['かた', 'もの', 'ひと'], explanation: '「様」は さまと よみます。てがみの あてさきに「○○様（さま）」と かきます。ていねいな いいかたです。' },
+    { q: '「曜」を つかった「もくようび」の「よう」は？', ans: 'よう', wrongs: ['び', 'にち', 'か'], explanation: '「曜」は ようと よみます。月・火・水・木・金・土・日の 7つを「曜日（ようび）」といいます。' },
+    { q: '「陽」を つかった「たいよう」の「よう」は？', ans: 'よう', wrongs: ['ひ', 'てん', 'そら'], explanation: '「陽」は ようや ひと よみます。「太陽（たいよう）」は そらに かがやく おおきな ほしのことです。' },
   ]
 };
 
@@ -1834,6 +1885,28 @@ const SHAKAI_POOLS = {
     { q: 'なつの よるに みる「はなび」は どの きせつの ぎょうじ？', ans: 'なつ', wrongs: ['はる', 'あき', 'ふゆ'], explanation: 'はなびは なつの よるに うちあげられる、いろとりどりの きれいな ぎょうじです。' },
     { q: '「しちごさん」は なんがつ？', ans: '11がつ', wrongs: ['3がつ', '5がつ', '7がつ'], explanation: 'しちごさんは 11がつ15にちに、7さい・5さい・3さいの こどもの せいちょうを いわう ぎょうじです。' },
     { q: 'おしょうがつに あそぶ でんとうてきな あそびは？', ans: 'はごいた・たこあげ・こまなど', wrongs: ['プール', 'すいかわり', 'かきごおりたべ'], explanation: 'おしょうがつには はごいた・たこあげ・こまなどの でんとうてきな あそびを たのしみます。' },
+  ],
+  shakai3: [
+    { q: 'ちずきごうで「〒」は なにを あらわす？', ans: 'ゆうびんきょく', wrongs: ['がっこう', 'びょういん', 'こうえん'], explanation: '「〒（ゆうびんマーク）」の ちずきごうは ゆうびんきょくを あらわしています。てがみや にもつを おくるときに いきます。' },
+    { q: 'ちずきごうで「文」の かたちは なにを あらわす？', ans: 'がっこう', wrongs: ['ゆうびんきょく', 'びょういん', 'としょかん'], explanation: '「文（ふみのき）」の かたちの ちずきごうは がっこうを あらわしています。しょうがっこう・ちゅうがっこうなどが のっています。' },
+    { q: 'ちずきごうで まるに じゅうじ（⊕）の かたちは なにを あらわす？', ans: 'びょういん', wrongs: ['がっこう', 'ゆうびんきょく', 'けいさつしょ'], explanation: 'まるに じゅうじ（⊕）の ちずきごうは びょういんを あらわしています。けがや びょうきの ときに いきます。' },
+    { q: 'ちずきごうで 仕切りが ある 四角は なにを あらわす？', ans: 'たんぼ（田）', wrongs: ['はたけ（畑）', 'こうえん', 'やま'], explanation: '田んぼを あらわす ちずきごうは、あぜみちを しめすように 仕切られた 四角の かたちです。こめを そだてる ばしょです。' },
+    { q: 'ちずきごうで ちいさな くさのような マークは なにを あらわす？', ans: 'はたけ（畑）', wrongs: ['たんぼ（田）', 'もり', 'こうえん'], explanation: '畑を あらわす ちずきごうは、しょくぶつが はえているような ちいさな くさの マークです。やさいや くだものを つくります。' },
+    { q: 'ちずきごうで とりいの かたちは なにを あらわす？', ans: 'じんじゃ（神社）', wrongs: ['おてら（寺）', 'びょういん', 'こうえん'], explanation: 'じんじゃの ちずきごうは、とりいを あらわした りょうてを ひろげたような かたちです。かみさまを おまつりする ばしょです。' },
+    { q: 'ちずきごうで まんじ（卍）のかたちは なにを あらわす？', ans: 'おてら（寺）', wrongs: ['じんじゃ', 'びょういん', 'がっこう'], explanation: '「まんじ（卍）」の ちずきごうは おてらを あらわしています。ぶっきょうに ゆかりの ある しるしです。' },
+    { q: 'にほんには 都道府県（とどうふけん）が いくつある？', ans: '47', wrongs: ['40', '50', '57'], explanation: 'にほんには 1と（東京都）・1どう（北海道）・2ふ（大阪府・京都府）・43けん をあわせた 47の とどうふけんが あります。' },
+    { q: '市・町・村を まとめる おおきな まとまりは？', ans: 'とどうふけん', wrongs: ['くに', 'しちょうそん', 'まちなみ'], explanation: '市・町・村（しちょうそん）は とどうふけんに ぞくしています。とどうふけんは くに（日本国）に ぞくしています。' },
+    { q: '市の しごとを するところは？', ans: 'しやくしょ', wrongs: ['けんちょう', 'こくかい', 'けいさつしょ'], explanation: '市の しごとは しやくしょで おこないます。住民票や ごみしゅうしゅうなど、まちの くらしを ささえています。' },
+    { q: '都道府県の しごとを するところは？', ans: 'けんちょう（とちょうなど）', wrongs: ['しやくしょ', 'こくかい', 'ゆうびんきょく'], explanation: '都道府県の しごとは けんちょう（または とちょう・どうちょう・ふちょう）で おこないます。' },
+    { q: 'のうかが こめを そだてる ばしょは？', ans: 'たんぼ（田）', wrongs: ['はたけ（畑）', 'こうじょう', 'そうこ'], explanation: 'こめ（いね）は たんぼ（水田）という みずを はった ばしょで そだてます。' },
+    { q: 'こうじょうの とくちょうは？', ans: 'おなじ ものを たくさん つくる', wrongs: ['ひとつだけ てで つくる', 'まちを まもる', 'やさいを そだてる'], explanation: 'こうじょうでは きかいを つかって、おなじ せいひんを たくさん まとめて つくります。これを「たいりょうせいさん（大量生産）」といいます。' },
+    { q: 'はたけ（畑）で そだてる もので ただしい ものは？', ans: 'きゅうり・トマト・にんじん', wrongs: ['こめ・むぎ・こうりゃん', 'さかな・えび・かに', 'りんご・みかん・ばなな'], explanation: 'きゅうりや トマト、にんじんなどは はたけで そだてる やさいです。こめは たんぼで そだてます。' },
+    { q: 'のうかが はたらく ばしょは？', ans: 'たはたけ（田や畑）', wrongs: ['こうじょう', 'びょういん', 'がっこう'], explanation: 'のうかの ひとは たはたけ（田や畑）で やさいや こめなどの のうさくぶつを そだてています。' },
+    { q: 'スーパーに やさいが ならぶまでの ながれで ただしいのは？', ans: 'のうか→しじょう→スーパー→きゃく', wrongs: ['こうじょう→のうか→えき→きゃく', 'きゃく→スーパー→のうか', 'えき→のうか→こうじょう→きゃく'], explanation: 'のうかで そだてた やさいは しじょう（いちば）に あつまり、スーパーなどの みせに はこばれて、わたしたちが かいます。' },
+    { q: 'こうじょうで つくられた ものは どのように みんなに とどく？', ans: 'トラックや きしゃ・ふねで はこばれる', wrongs: ['のうかが もってくる', 'けいさつかんが とどける', 'バイクで ひとつずつ とどける'], explanation: 'こうじょうで つくられた ものは トラックや きしゃ・ふねなどで にもつとして はこばれ、みせに ならびます。' },
+    { q: 'まちの ぜいきんの つかいみちを きめる ひとたちは？', ans: 'ぎかい（議員）', wrongs: ['しょうぼうし', 'けいさつかん', 'のうか'], explanation: 'まちの ぜいきんを どのように つかうか きめるのは、しみんが えらんだ ぎかい（市議会・町議会など）の ぎいんです。' },
+    { q: '市と むらで くらべると、ひとが おおく すむのは？', ans: '市', wrongs: ['むら', 'まち', 'どちらも おなじ'], explanation: '市は 人口（じんこう）が おおく、まちや むらに くらべると だいきぼな しせつや みせが そろっています。' },
+    { q: 'のうかの しごとで、いちねんの なかで たいへんな じきは？', ans: 'たうえや かりとりの じき', wrongs: ['ふゆだけ', 'あさだけ', 'てんきの よいひ だけ'], explanation: 'のうかの ひとは はるの たねまきから あきの しゅうかくまで いちねんじゅう はたらいています。とくに たうえや かりとりは たいへんです。' },
   ]
 };
 
@@ -1904,6 +1977,28 @@ const RIKA_POOLS = {
     { q: 'しもが おりるのは どの きせつ？', ans: 'ふゆ', wrongs: ['はる', 'なつ', 'あき'], explanation: 'しもは さむい ふゆの よる、くさや はっぱの うえの みずが こおりついた ものです。' },
     { q: 'かぜの つよさを しらべる きかいは？', ans: 'ふうそくけい', wrongs: ['おんどけい', 'じしゃく', 'かん電池'], explanation: 'ふうそくけいは かぜの つよさ（ふうそく）を はかる きかいです。' },
     { q: 'あまぐもは どんな いろ？', ans: 'くろっぽい（こい はいいろ）', wrongs: ['まっしろ', 'あかい', 'あおい'], explanation: 'あまぐもは みずを たっぷり ふくんでいるので、ひかりが とおりにくく くろっぽく みえます。' },
+  ],
+  rika3: [
+    { q: 'ホウセンカの たねを まく じきは？', ans: 'はる（4〜5がつ）', wrongs: ['ふゆ（1がつ）', 'あき（10がつ）', 'なつ（8がつ）'], explanation: 'ホウセンカは あたたかい はるに たねを まきます。4がつ〜5がつごろが まきどきです。' },
+    { q: 'ホウセンカが そだつ じゅんばんで ただしいのは？', ans: 'たね→め→くき・は→はな→み', wrongs: ['はな→め→たね→くき', 'み→はな→め→たね', 'くき→たね→め→はな'], explanation: 'ホウセンカは たね→めがでる→くきと はが そだつ→はなが さく→みができる の じゅんに そだちます。' },
+    { q: 'ホウセンカの はなの いろは？', ans: 'ピンク・あか・しろ など いろいろ', wrongs: ['あおだけ', 'きいろだけ', 'くろだけ'], explanation: 'ホウセンカは ピンク・あか・しろ・むらさきなど、いろいろな いろの はなが さきます。' },
+    { q: 'ヒマワリが おとなに なると たかさは？', ans: '1メートル いじょうに なることも', wrongs: ['10センチ ほど', '1センチ ほど', '100メートル いじょう'], explanation: 'ヒマワリは なつに ぐんぐん そだち、1メートル〜2メートル いじょうに なることも あります。' },
+    { q: 'たいようが みなみの そらに くる じかんは？', ans: 'ひるごろ（おひるどき）', wrongs: ['あさ', 'よる', 'ゆうがた'], explanation: 'たいようは あさ ひがしから のぼり、ひるごろ みなみの そらに きて（なんちゅう）、にしに しずみます。' },
+    { q: 'かげは どちらに できる？', ans: 'たいようの はんたいがわ', wrongs: ['たいようと おなじがわ', 'かならず きたがわ', 'かならず にしがわ'], explanation: 'かげは ひかりが さえぎられる ばしょに できるので、かならず たいようの はんたいがわに できます。' },
+    { q: 'あさ（ひがし）に たいようが あるとき、かげは どちらに のびる？', ans: 'にし', wrongs: ['ひがし', 'みなみ', 'きた'], explanation: 'あさ たいようが ひがしに あるとき、かげは はんたいの にしがわに のびます。' },
+    { q: 'たいようが うごくにつれて、かげの むきは？', ans: 'かわる（うごく）', wrongs: ['かわらない', 'なくなる', 'どんどん おおきくなる'], explanation: 'たいようが ひがし→みなみ→にしと うごくにつれて、かげも にし→きた→ひがしと むきが かわります。' },
+    { q: 'こんちゅうの あたま・むね・はらの うち、あしが ついているのは？', ans: 'むね', wrongs: ['あたま', 'はら', 'あたまと はら'], explanation: 'こんちゅうの 6ぽんの あしは すべて「むね」の ぶぶんに ついています。' },
+    { q: 'トンボの はねは なんまい？', ans: '4まい（まえとうしろに 2まいずつ）', wrongs: ['2まい', '6まい', '8まい'], explanation: 'トンボは まえばねと うしろばねが それぞれ 2まいずつ、あわせて 4まいの はねが あります。' },
+    { q: 'チョウの はねに ついている こなのようなものは？', ans: 'りんぷん（鱗粉）', wrongs: ['はちみつ', 'あぶら', 'かふん'], explanation: 'チョウの はねには「りんぷん（鱗粉）」という こなのような ものが ついていて、さまざまな もようが あります。' },
+    { q: 'かぜの はたらきで うごく おもちゃは？', ans: 'かざぐるま（風車）', wrongs: ['おもり', 'じしゃく', 'かん電池'], explanation: 'かざぐるまは かぜが ふくと くるくると まわります。かぜの ちからを つかった おもちゃです。' },
+    { q: 'ゴムを のばして はなすと どうなる？', ans: 'もとに もどろうとする ちからが はたらく', wrongs: ['そのまま のびたまま', 'ちぎれる', 'かたくなる'], explanation: 'ゴムは のばすと もとに もどろうとする ちから（ちぢむ ちから）が はたらきます。この ちからで しゃを うごかすこともできます。' },
+    { q: 'かぜが つよいほど、かぜで うごく しゃは？', ans: 'はやく うごく', wrongs: ['おそく うごく', 'うごかない', 'ちいさくなる'], explanation: 'かぜしゃは かぜが つよいほど たくさんの ちからを うけて、はやく うごきます。' },
+    { q: 'ゴムを おおく まくほど、ゴムしゃは？', ans: 'とおくまで はしる', wrongs: ['ちかくしか はしらない', 'うごかない', 'よこに まがる'], explanation: 'ゴムを たくさん まくと、もとに もどる ちからが おおきくなり、ゴムしゃが とおくまで はしります。' },
+    { q: '日光を かがみで はんしゃさせると？', ans: 'あかるく・あたたかく なる', wrongs: ['つめたく なる', 'くらく なる', 'かがみが とける'], explanation: '日光を かがみで はんしゃ（はね かえす）させると、あたった ばしょが あかるく なり、あたたかく なります。' },
+    { q: 'かがみを たくさん つかって 日光を あつめると？', ans: 'より あかるく・あたたかく なる', wrongs: ['つめたく なる', 'くらく なる', 'なにも かわらない'], explanation: 'かがみを たくさん つかうほど 日光が あつまり、あかるさと あたたかさが ますます つよくなります。' },
+    { q: '日光を プリズムに とおすと？', ans: 'にじのように 7しょくに わかれる', wrongs: ['あかい ひかりだけになる', 'くらくなる', 'きえる'], explanation: '日光は プリズム（とうめいな 三角の ガラス）を とおすと、にじのような 7しょくに わかれて みえます。' },
+    { q: 'かげが できるのは なぜ？', ans: 'ひかりが さえぎられるから', wrongs: ['ひかりが はんしゃされるから', 'ひかりが つよすぎるから', 'ひかりが きえるから'], explanation: 'かげは ひかりが ものに さえぎられて、うしろがわに ひかりが とどかない ばしょに できます。' },
+    { q: 'とつレンズで 日光を あつめると？', ans: 'ひかりが 1てんに あつまり あつくなる', wrongs: ['ひかりが ちらばる', 'なにも おきない', 'みずが でてくる'], explanation: 'とつレンズは 日光を 1てんに あつめることが できます。あつまった ところは とても あつくなります（あつかいに きをつけて！）。' },
   ]
 };
 
@@ -2057,19 +2152,49 @@ const GENERATORS = {
       const a = rand(2, 9), b = rand(1, 9);
       const ans = a * b;
       return { q: `${a} × ${b} ＝ ？`, ans, opts: makeOpts(ans, 1, 81) };
-    }
+    },
+    wari1: () => {
+      const d = rand(2, 5), q = rand(1, 9), a = d * q;
+      return { q: `${a} ÷ ${d} ＝ ？`, ans: q, opts: makeOpts(q, 1, 45) };
+    },
+    wari2: () => {
+      const d = rand(2, 9), q = rand(1, 9), a = d * q;
+      return { q: `${a} ÷ ${d} ＝ ？`, ans: q, opts: makeOpts(q, 1, 81) };
+    },
+    wari3: () => {
+      const d = rand(2, 9);
+      const q = rand(1, 9);
+      const r = rand(1, d - 1);
+      const a = d * q + r;
+      const ans = `${q} あまり ${r}`;
+      const wrongs = new Set();
+      let tries = 0;
+      while (wrongs.size < 3 && tries < 200) {
+        tries++;
+        const wq = Math.max(1, q + rand(-2, 2));
+        const wr = rand(1, d - 1);
+        if (wq !== q || wr !== r) {
+          const w = `${wq} あまり ${wr}`;
+          if (w !== ans) wrongs.add(w);
+        }
+      }
+      return { q: `${a} ÷ ${d} ＝ ？`, ans, opts: shuffle([ans, ...wrongs]) };
+    },
   },
   kokugo: {
-    hira:  makePoolGen(KOKUGO_POOLS.hira),
-    kanji: makePoolGen(KOKUGO_POOLS.kanji),
+    hira:   makePoolGen(KOKUGO_POOLS.hira),
+    kanji:  makePoolGen(KOKUGO_POOLS.kanji),
+    kanji3: makePoolGen(KOKUGO_POOLS.kanji3),
   },
   shakai: {
-    machi:  makePoolGen(SHAKAI_POOLS.machi),
-    kisetu: makePoolGen(SHAKAI_POOLS.kisetu),
+    machi:   makePoolGen(SHAKAI_POOLS.machi),
+    kisetu:  makePoolGen(SHAKAI_POOLS.kisetu),
+    shakai3: makePoolGen(SHAKAI_POOLS.shakai3),
   },
   rika: {
     shokubutsu: makePoolGen(RIKA_POOLS.shokubutsu),
     tenki:      makePoolGen(RIKA_POOLS.tenki),
+    rika3:      makePoolGen(RIKA_POOLS.rika3),
   },
   eigo: {
     alphabet: makePoolGen(EIGO_POOLS.alphabet),
@@ -2100,21 +2225,27 @@ let state = {};
 
 const MODES = {
   sansu: [
-    { key: 'tashi', label: '➕ たしざん（1〜10）', cls: 'tashi' },
-    { key: 'hiki',  label: '➖ ひきざん（1〜20）', cls: 'hiki'  },
-    { key: 'kuku',  label: '✖️ 九九（2〜9のだん）', cls: 'kuku'  },
+    { key: 'tashi', label: '➕ たしざん（1〜10）<br><span class="grade-badge">1・2ねんせい</span>', cls: 'tashi' },
+    { key: 'hiki',  label: '➖ ひきざん（1〜20）<br><span class="grade-badge">1・2ねんせい</span>', cls: 'hiki'  },
+    { key: 'kuku',  label: '✖️ 九九（2〜9のだん）<br><span class="grade-badge">2ねんせい</span>', cls: 'kuku'  },
+    { key: 'wari1', label: '➗ わりざん かんたん（÷2〜÷5）<br><span class="grade-badge">3ねんせい</span>', cls: 'wari1' },
+    { key: 'wari2', label: '➗ わりざん ふつう（÷2〜÷9）<br><span class="grade-badge">3ねんせい</span>', cls: 'wari2' },
+    { key: 'wari3', label: '➗ わりざん むずかしい（あまりあり）<br><span class="grade-badge">3ねんせい</span>', cls: 'wari3' },
   ],
   kokugo: [
-    { key: 'hira',  label: '🔤 ひらがなことば（30もん）', cls: 'hira'  },
-    { key: 'kanji', label: '漢 かんじよみ（1・2ねんせい）', cls: 'kanji' },
+    { key: 'hira',   label: '🔤 ひらがなことば（30もん）<br><span class="grade-badge">1ねんせい</span>',    cls: 'hira'   },
+    { key: 'kanji',  label: '漢 かんじよみ（1・2ねんせい）<br><span class="grade-badge">1・2ねんせい</span>', cls: 'kanji'  },
+    { key: 'kanji3', label: '漢 3ねんせいの かんじ（30もん）<br><span class="grade-badge">3ねんせい</span>',  cls: 'kanji3' },
   ],
   shakai: [
-    { key: 'machi',  label: '🏘️ まちと しごと', cls: 'machi'  },
-    { key: 'kisetu', label: '🌸 きせつと ぎょうじ', cls: 'kisetu' },
+    { key: 'machi',   label: '🏘️ まちと しごと<br><span class="grade-badge">1・2ねんせい</span>',         cls: 'machi'   },
+    { key: 'kisetu',  label: '🌸 きせつと ぎょうじ<br><span class="grade-badge">1・2ねんせい</span>',       cls: 'kisetu'  },
+    { key: 'shakai3', label: '🗺️ ちずきごう・市区町村・のうか<br><span class="grade-badge">3ねんせい</span>', cls: 'shakai3' },
   ],
   rika: [
-    { key: 'shokubutsu', label: '🌱 しょくぶつと こんちゅう', cls: 'shokubutsu' },
-    { key: 'tenki',      label: '⛅ てんきと じしゃく・でんき', cls: 'tenki'      },
+    { key: 'shokubutsu', label: '🌱 しょくぶつと こんちゅう<br><span class="grade-badge">1・2ねんせい</span>', cls: 'shokubutsu' },
+    { key: 'tenki',      label: '⛅ てんきと じしゃく・でんき<br><span class="grade-badge">1・2ねんせい</span>', cls: 'tenki'      },
+    { key: 'rika3',      label: '🌻 植物・太陽・かぜ・ひかり<br><span class="grade-badge">3ねんせい</span>',     cls: 'rika3'      },
   ],
   eigo: [
     { key: 'alphabet', label: '🔡 アルファベット（大文字・小文字）', cls: 'alphabet' },
@@ -3079,9 +3210,10 @@ function saveRecord(rec) {
 // ======================================================
 const MODE_LABELS = {
   tashi: 'たしざん', hiki: 'ひきざん', kuku: '九九',
-  hira: 'ひらがなことば', kanji: 'かんじよみ',
-  machi: 'まちとしごと', kisetu: 'きせつとぎょうじ',
-  shokubutsu: 'しょくぶつ・むし', tenki: 'てんき・でんき',
+  wari1: 'わりざん(かんたん)', wari2: 'わりざん(ふつう)', wari3: 'わりざん(むずかしい)',
+  hira: 'ひらがなことば', kanji: 'かんじよみ', kanji3: '3ねんせいかんじ',
+  machi: 'まちとしごと', kisetu: 'きせつとぎょうじ', shakai3: '3ねんせいしゃかい',
+  shokubutsu: 'しょくぶつ・むし', tenki: 'てんき・でんき', rika3: '3ねんせいりか',
   alphabet: 'アルファベット', tango: 'たんご', aisatsu: 'あいさつ',
   easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい', learn: 'まなぶ',
   weak: 'にがてれんしゅう'
@@ -3115,10 +3247,10 @@ function renderRecords() {
 
   const all = loadRecords();
   renderHistoryTable(all);
-  drawSubjectChart('chart-sansu',  all.filter(r => r.subject === 'sansu'),  ['tashi','hiki','kuku'],            { tashi:'#f9a825', hiki:'#e91e63', kuku:'#7e57c2' });
-  drawSubjectChart('chart-kokugo', all.filter(r => r.subject === 'kokugo'), ['hira','kanji'],                   { hira:'#f06292', kanji:'#ff8f00' });
-  drawSubjectChart('chart-shakai', all.filter(r => r.subject === 'shakai'), ['machi','kisetu'],                 { machi:'#42a5f5', kisetu:'#5c6bc0' });
-  drawSubjectChart('chart-rika',   all.filter(r => r.subject === 'rika'),   ['shokubutsu','tenki'],             { shokubutsu:'#66bb6a', tenki:'#26c6da' });
+  drawSubjectChart('chart-sansu',  all.filter(r => r.subject === 'sansu'),  ['tashi','hiki','kuku','wari1','wari2','wari3'],            { tashi:'#f9a825', hiki:'#e91e63', kuku:'#7e57c2', wari1:'#4caf50', wari2:'#ff9800', wari3:'#f44336' });
+  drawSubjectChart('chart-kokugo', all.filter(r => r.subject === 'kokugo'), ['hira','kanji','kanji3'],                   { hira:'#f06292', kanji:'#ff8f00', kanji3:'#e64a19' });
+  drawSubjectChart('chart-shakai', all.filter(r => r.subject === 'shakai'), ['machi','kisetu','shakai3'],                 { machi:'#42a5f5', kisetu:'#5c6bc0', shakai3:'#0288d1' });
+  drawSubjectChart('chart-rika',   all.filter(r => r.subject === 'rika'),   ['shokubutsu','tenki','rika3'],             { shokubutsu:'#66bb6a', tenki:'#26c6da', rika3:'#8bc34a' });
   drawSubjectChart('chart-eigo',   all.filter(r => r.subject === 'eigo'),   ['alphabet','tango','aisatsu'],     { alphabet:'#9575cd', tango:'#f48fb1', aisatsu:'#64b5f6' });
   drawSubjectChart('chart-chizu',  all.filter(r => r.subject === 'chizu'),  ['easy','normal','hard'],           { easy:'#66bb6a', normal:'#ffa726', hard:'#ef5350' });
 }
