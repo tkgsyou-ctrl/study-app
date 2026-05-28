@@ -1197,6 +1197,14 @@
     border-radius: 20px; letter-spacing: 0.05em;
     flex-shrink: 0;
   }
+  #battle-weak-banner {
+    background: linear-gradient(90deg, #6a1b9a, #1565c0);
+    color: #fff; font-weight: bold;
+    font-size: clamp(12px, 2.8vw, 15px);
+    text-align: center; padding: 4px 16px;
+    border-radius: 20px; letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
   /* 敵エリア */
   #battle-enemy-area {
     width: 100%; max-width: 560px;
@@ -1282,6 +1290,32 @@
   }
   .shake-enemy  { animation: shakeEnemy  0.5s ease; }
   .shake-player { animation: shakePlayer 0.5s ease; }
+  /* 称号 */
+  .dragon-title { display: block; font-size: clamp(11px,2.5vw,13px); color: #7c4dff; font-weight: bold; margin-top: 2px; }
+  .dragon-title.title-god { color: #f57f17; text-shadow: 0 0 8px #ffd700; letter-spacing: 0.08em; }
+  /* ボスバトルボタン */
+  #boss-battle-btn {
+    width: 100%; max-width: 400px;
+    padding: 14px 20px; margin-top: 6px;
+    border: 3px solid #6a1b9a; border-radius: 14px;
+    font-size: 17px; font-family: inherit; font-weight: bold;
+    cursor: pointer; transition: all 0.15s;
+    background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+    color: #4a148c; display: none;
+  }
+  #boss-battle-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  @media (hover: hover) {
+    #boss-battle-btn:not(:disabled):hover { transform: scale(1.03); box-shadow: 0 4px 14px rgba(106,27,154,0.28); }
+  }
+  /* くんしょう */
+  .medal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 8px; }
+  .medal-card { background: #fff; border-radius: 14px; padding: 14px 10px; text-align: center; border: 2px solid #e0e0e0; transition: box-shadow 0.15s; }
+  .medal-card.earned { border-color: #ffd700; background: linear-gradient(135deg, #fffde7, #fff8e1); box-shadow: 0 2px 10px rgba(255,215,0,0.3); }
+  .medal-card.locked { opacity: 0.45; filter: grayscale(0.6); }
+  .medal-icon { font-size: 36px; line-height: 1.3; }
+  .medal-name { font-size: 13px; font-weight: bold; color: #333; margin: 6px 0 2px; }
+  .medal-cond { font-size: 11px; color: #757575; line-height: 1.4; }
+  .medal-date { font-size: 11px; color: #f57f17; font-weight: bold; margin-top: 4px; }
   /* バトルモードボタン（モード選択画面） */
   #battle-mode-btn-ms {
     width: 100%; max-width: 400px;
@@ -1437,6 +1471,7 @@
     <h2 id="mode-title">さんすう — もんだいをえらぼう</h2>
     <div class="mode-grid" id="mode-buttons"></div>
     <button id="battle-mode-btn-ms" onclick="startBattle()">⚔️ バトルモード</button>
+    <button id="boss-battle-btn" onclick="startBossBattle()">👹 しゅごしん（週1ボス戦）</button>
     <button id="weak-practice-btn" onclick="startWeakQuiz()">😣 にがてもんだいを れんしゅう</button>
     <div class="btn-row">
       <button class="btn btn-gray" onclick="showScreen('title-screen')">← もどる</button>
@@ -1477,6 +1512,7 @@
 <div id="battle-screen" class="screen">
   <div id="battle-progress-wrap"><div id="battle-progress-bar"></div></div>
   <div id="battle-mode-banner">⚔️ バトルモード！</div>
+  <div id="battle-weak-banner" style="display:none">💪 にがてもんだい優先中💪</div>
 
   <!-- 敵エリア -->
   <div id="battle-enemy-area">
@@ -1521,6 +1557,7 @@
     <div id="battle-result-title"></div>
     <div id="battle-result-detail"></div>
     <div id="battle-result-exp"></div>
+    <div id="battle-result-weak" style="display:none;font-size:15px;color:#6a1b9a;font-weight:bold;margin-top:6px"></div>
     <button class="btn btn-primary" onclick="battleResultOk()">OK！</button>
   </div>
 </div>
@@ -1608,6 +1645,7 @@
     <button class="rec-tab" onclick="switchRecTab('tab-weak',this)">😣 にがて</button>
     <button class="rec-tab" onclick="switchRecTab('tab-weekly',this)">📅 しゅうかん</button>
     <button class="rec-tab" onclick="switchRecTab('tab-parent',this)">👨‍👩‍👧 ほごしゃ</button>
+    <button class="rec-tab" onclick="switchRecTab('tab-medal',this)">🏅 くんしょう</button>
   </div>
 
   <!-- ① きろくパネル -->
@@ -1679,6 +1717,14 @@
         <button class="btn btn-success" id="line-share-btn" onclick="shareToLine()">📱 LINEでシェア</button>
         <button class="btn btn-gray" onclick="copyReport()">📋 コピー</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ⑤ くんしょうパネル -->
+  <div id="tab-medal" class="rec-panel">
+    <div class="records-card">
+      <h3>🏅 くんしょう</h3>
+      <div class="medal-grid" id="medal-grid"></div>
     </div>
   </div>
 
@@ -2279,6 +2325,24 @@ function selectSubject(subject) {
   // バトルモードボタンの表示制御（ちずゲームには非対応）
   const battleBtn = document.getElementById('battle-mode-btn-ms');
   if (battleBtn) battleBtn.style.display = subject === 'chizu' ? 'none' : 'block';
+  // ボスバトルボタン（Lv50以上・週1回・ちずゲーム以外）
+  const bossBtn = document.getElementById('boss-battle-btn');
+  if (bossBtn) {
+    if (subject === 'chizu') {
+      bossBtn.style.display = 'none';
+    } else {
+      const bossLevel = expToLevel(loadExp().exp);
+      if (bossLevel >= 50) {
+        bossBtn.style.display = 'block';
+        bossBtn.disabled = !canChallengeBoss();
+        bossBtn.textContent = canChallengeBoss()
+          ? '👹 しゅごしん（週1ボス戦）'
+          : '👹 しゅごしん（今週はかんりょう）';
+      } else {
+        bossBtn.style.display = 'none';
+      }
+    }
+  }
   showScreen('mode-screen');
 }
 
@@ -2380,6 +2444,8 @@ function answer(chosen, correct, btn) {
   if (!isCorrect) {
     const saveMode = state.mode === 'weak' ? (_curQ.mode || state.mode) : state.mode;
     saveWrongAnswer(state.subject, saveMode, _curQ);
+  } else if (state.mode === 'weak') {
+    addWeakCorrectCount(1);
   }
 
   // 解説を表示
@@ -2470,6 +2536,7 @@ function showResult() {
 
   // localStorage保存
   saveRecord({ subject, mode, score, total, pct, date: new Date().toISOString() });
+  checkAndAwardMedals();
 
   showScreen('result-screen');
 }
@@ -2624,11 +2691,14 @@ function saveExp(data) {
 }
 // レベルごとの必要EXP（段階別）
 function expPerLevel(level) {
+  if (level >= 100) return Infinity; // Lv100キャップ
   if (level <= 10) return 100;
   if (level <= 20) return 150;
   if (level <= 30) return 200;
   if (level <= 40) return 250;
-  return 300;
+  if (level <= 50) return 300;
+  if (level <= 70) return 350;
+  return 400;
 }
 
 // 累計EXP → レベル
@@ -2654,6 +2724,8 @@ function expInCurrentLevel(exp) {
 }
 
 function getDragonStage(level) {
+  if (level >= 71) return 11;
+  if (level >= 51) return 10;
   if (level >= 50) return 9;
   if (level >= 40) return 8;
   if (level >= 35) return 7;
@@ -2666,6 +2738,8 @@ function getDragonStage(level) {
   return 0;
 }
 function getDragonName(level) {
+  if (level >= 71) return 'てんくうのドラゴン';
+  if (level >= 51) return 'まどうのドラゴン';
   if (level >= 50) return 'でんせつのにじドラゴン';
   if (level >= 40) return 'かみドラゴン';
   if (level >= 35) return 'あらしドラゴン';
@@ -2676,6 +2750,16 @@ function getDragonName(level) {
   if (level >= 10) return 'ドラゴン';
   if (level >= 5)  return 'こドラゴン';
   return 'たまご';
+}
+function getDragonTitle(level) {
+  if (level >= 100) return { text: '✨ かみのせんし ✨', isGod: true };
+  if (level >= 70)  return { text: 'グランドマスター', isGod: false };
+  if (level >= 50)  return { text: 'マスター', isGod: false };
+  if (level >= 40)  return { text: 'レジェンド', isGod: false };
+  if (level >= 30)  return { text: 'えりーと', isGod: false };
+  if (level >= 20)  return { text: 'つわもの', isGod: false };
+  if (level >= 10)  return { text: 'いっぱしのぼうけんしゃ', isGod: false };
+  return { text: 'みならい', isGod: false };
 }
 
 // ── SVGドラゴン描画関数 ──────────────────────────────────
@@ -3096,17 +3180,105 @@ function svgStormDragon() {
 </svg>`;
 }
 
+function svgMagicDragon() {
+  return `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="mg1" cx="38%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#ce93d8"/>
+      <stop offset="55%" stop-color="#7b1fa2"/>
+      <stop offset="100%" stop-color="#1a0030"/>
+    </radialGradient>
+    <radialGradient id="mglow" cx="50%" cy="60%" r="55%">
+      <stop offset="0%" stop-color="#7c4dff" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#7c4dff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="75" cy="85" r="65" fill="url(#mglow)"/>
+  <circle cx="75" cy="85" r="58" fill="none" stroke="#9c27b0" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.55"/>
+  <circle cx="75" cy="85" r="46" fill="none" stroke="#7c4dff" stroke-width="0.8" stroke-dasharray="2 7" opacity="0.45"/>
+  <path d="M50 82 Q18 52 25 25 Q40 58 52 76 Z" fill="#4a148c" opacity="0.88"/>
+  <path d="M100 82 Q132 52 125 25 Q110 58 98 76 Z" fill="#4a148c" opacity="0.88"/>
+  <path d="M108 116 Q138 124 136 148 Q114 132 106 122 Z" fill="#6a1b9a"/>
+  <ellipse cx="75" cy="106" rx="32" ry="25" fill="url(#mg1)"/>
+  <ellipse cx="75" cy="112" rx="18" ry="12" fill="#e1bee7" opacity="0.25"/>
+  <circle cx="75" cy="65" r="27" fill="url(#mg1)"/>
+  <polygon points="63,39 57,18 69,37" fill="#311b92"/>
+  <polygon points="87,39 93,18 81,37" fill="#311b92"/>
+  <ellipse cx="63" cy="63" rx="9" ry="8" fill="#fff" opacity="0.92"/>
+  <ellipse cx="87" cy="63" rx="9" ry="8" fill="#fff" opacity="0.92"/>
+  <ellipse cx="63" cy="64" rx="3.2" ry="7" fill="#ff6f00"/>
+  <ellipse cx="87" cy="64" rx="3.2" ry="7" fill="#ff6f00"/>
+  <line x1="54" y1="55" x2="70" y2="59" stroke="#212121" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="96" y1="55" x2="80" y2="59" stroke="#212121" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M65 77 L75 83 L85 77" stroke="#4a148c" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="28" cy="42" r="3" fill="#e040fb" opacity="0.8"/>
+  <circle cx="122" cy="38" r="2.5" fill="#7c4dff" opacity="0.8"/>
+  <circle cx="114" cy="68" r="2" fill="#e040fb" opacity="0.6"/>
+  <circle cx="38" cy="66" r="2" fill="#7c4dff" opacity="0.6"/>
+  <text x="66" y="148" font-size="10" fill="#7c4dff" opacity="0.7">✦</text>
+  <text x="18" y="28" font-size="9" fill="#e040fb" opacity="0.65">✦</text>
+  <text x="120" y="24" font-size="9" fill="#9c27b0" opacity="0.7">✦</text>
+  <text x="8" y="90" font-size="8" fill="#7c4dff" opacity="0.5">✦</text>
+  <text x="134" y="88" font-size="8" fill="#e040fb" opacity="0.5">✦</text>
+</svg>`;
+}
+
+function svgSkyDragon() {
+  return `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="skd1" cx="38%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#fffde7"/>
+      <stop offset="50%" stop-color="#fff9c4"/>
+      <stop offset="100%" stop-color="#f9a825"/>
+    </radialGradient>
+    <radialGradient id="skglow" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#fff9c4" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#ffd600" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="75" cy="80" r="70" fill="url(#skglow)"/>
+  <ellipse cx="75" cy="30" rx="30" ry="9" fill="none" stroke="#ffd600" stroke-width="5" opacity="0.88"/>
+  <ellipse cx="75" cy="30" rx="30" ry="9" fill="none" stroke="#fff" stroke-width="2.5" opacity="0.55"/>
+  <path d="M50 80 Q10 52 18 14 Q32 48 48 72 Q36 56 34 38 Q46 66 53 80 Z" fill="#fffde7" stroke="#ffd600" stroke-width="1.2" opacity="0.92"/>
+  <path d="M100 80 Q140 52 132 14 Q118 48 102 72 Q114 56 116 38 Q104 66 97 80 Z" fill="#fffde7" stroke="#ffd600" stroke-width="1.2" opacity="0.92"/>
+  <path d="M108 116 Q142 124 140 148 Q116 134 106 122 Z" fill="#f9a825"/>
+  <ellipse cx="75" cy="108" rx="33" ry="26" fill="url(#skd1)"/>
+  <ellipse cx="75" cy="114" rx="20" ry="13" fill="#fff" opacity="0.5"/>
+  <circle cx="75" cy="67" r="28" fill="url(#skd1)"/>
+  <polygon points="75,28 71,46 79,46" fill="#ffd600"/>
+  <polygon points="62,35 57,52 65,52" fill="#ffd600" opacity="0.82"/>
+  <polygon points="88,35 93,52 85,52" fill="#ffd600" opacity="0.82"/>
+  <ellipse cx="63" cy="64" rx="10" ry="9" fill="#fff" opacity="0.98"/>
+  <ellipse cx="87" cy="64" rx="10" ry="9" fill="#fff" opacity="0.98"/>
+  <circle cx="63" cy="65" r="6" fill="#4fc3f7"/>
+  <circle cx="87" cy="65" r="6" fill="#4fc3f7"/>
+  <circle cx="63" cy="64" r="3" fill="#0d47a1"/>
+  <circle cx="87" cy="64" r="3" fill="#0d47a1"/>
+  <circle cx="62" cy="63" r="1.6" fill="#fff"/>
+  <circle cx="86" cy="63" r="1.6" fill="#fff"/>
+  <path d="M64 78 Q75 88 86 78" stroke="#f9a825" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <text x="8"  y="52" font-size="16" fill="#ffd600" opacity="0.85">✦</text>
+  <text x="126" y="56" font-size="14" fill="#ffd600" opacity="0.8">✦</text>
+  <text x="58"  y="148" font-size="10" fill="#ffd600" opacity="0.65">✦</text>
+  <text x="32"  y="130" font-size="9" fill="#fff9c4" opacity="0.7">✦</text>
+  <text x="106" y="128" font-size="9" fill="#fff9c4" opacity="0.7">✦</text>
+  <text x="70"  y="148" font-size="11" fill="#fff" opacity="0.6">★</text>
+</svg>`;
+}
+
 function getDragonSVG(level) {
-  if (level >= 50) return svgRainbowDragon();   // でんせつのにじドラゴン（最終形態）
-  if (level >= 40) return svgDivineDragon();    // かみドラゴン
-  if (level >= 35) return svgStormDragon();     // あらしドラゴン
-  if (level >= 30) return svgSeaDragon();       // うみドラゴン
-  if (level >= 25) return svgThunderDragon();   // かみなりドラゴン
-  if (level >= 20) return svgIceDragon();       // こおりドラゴン
-  if (level >= 15) return svgFireDragon();      // ほのおドラゴン
-  if (level >= 10) return svgBlueDragon();      // ドラゴン
-  if (level >= 5)  return svgBabyDragon();      // こドラゴン
-  return svgEgg();                              // たまご
+  if (level >= 71) return svgSkyDragon();         // てんくうのドラゴン
+  if (level >= 51) return svgMagicDragon();       // まどうのドラゴン
+  if (level >= 50) return svgRainbowDragon();     // でんせつのにじドラゴン
+  if (level >= 40) return svgDivineDragon();      // かみドラゴン
+  if (level >= 35) return svgStormDragon();       // あらしドラゴン
+  if (level >= 30) return svgSeaDragon();         // うみドラゴン
+  if (level >= 25) return svgThunderDragon();     // かみなりドラゴン
+  if (level >= 20) return svgIceDragon();         // こおりドラゴン
+  if (level >= 15) return svgFireDragon();        // ほのおドラゴン
+  if (level >= 10) return svgBlueDragon();        // ドラゴン
+  if (level >= 5)  return svgBabyDragon();        // こドラゴン
+  return svgEgg();                                // たまご
 }
 
 function updateDragonPanel() {
@@ -3116,8 +3288,10 @@ function updateDragonPanel() {
   const level = expToLevel(exp);
   const inLevel = expInCurrentLevel(exp);
   const needed = expPerLevel(level);
+  const titleInfo = getDragonTitle(level);
   document.getElementById('dragon-svg-wrap').innerHTML = getDragonSVG(level);
-  document.getElementById('dragon-level-text').textContent = `Lv.${level} ${getDragonName(level)}`;
+  document.getElementById('dragon-level-text').innerHTML =
+    `Lv.${level} ${getDragonName(level)}<span class="dragon-title${titleInfo.isGod ? ' title-god' : ''}">${titleInfo.text}</span>`;
   document.querySelector('.dragon-exp-bar').style.width = `${Math.round(inLevel / needed * 100)}%`;
   document.getElementById('dragon-exp-label').textContent = `EXP ${inLevel} / ${needed}`;
 }
@@ -3181,6 +3355,125 @@ function loadWrongAnswers() {
   try { return JSON.parse(localStorage.getItem(userWrongKey(currentUser))) || {}; }
   catch { return {}; }
 }
+
+// ── 勲章 ───────────────────────────────────────────────
+const LS_MEDAL_KEY = 'study_app_medals_v1';
+function userMedalKey(name) { return name ? `${LS_MEDAL_KEY}_${name}` : LS_MEDAL_KEY; }
+function loadMedals() {
+  try { return JSON.parse(localStorage.getItem(userMedalKey(currentUser))) || {}; }
+  catch { return {}; }
+}
+function saveMedals(data) {
+  localStorage.setItem(userMedalKey(currentUser), JSON.stringify(data));
+}
+
+// ── チズ都道府県正解追跡 ───────────────────────────────
+const LS_CHIZUPREF_KEY = 'study_app_chizupref_v1';
+function userChizuPrefKey(name) { return name ? `${LS_CHIZUPREF_KEY}_${name}` : LS_CHIZUPREF_KEY; }
+function loadChizuPrefs() {
+  try { return JSON.parse(localStorage.getItem(userChizuPrefKey(currentUser))) || []; }
+  catch { return []; }
+}
+function saveChizuPref(prefId) {
+  const prefs = loadChizuPrefs();
+  if (!prefs.includes(prefId)) prefs.push(prefId);
+  localStorage.setItem(userChizuPrefKey(currentUser), JSON.stringify(prefs));
+}
+
+// ── 弱点正解カウント ───────────────────────────────────
+const LS_WEAKCNT_KEY = 'study_app_weakcnt_v1';
+function userWeakCntKey(name) { return name ? `${LS_WEAKCNT_KEY}_${name}` : LS_WEAKCNT_KEY; }
+function loadWeakCorrectCount() {
+  try { return parseInt(localStorage.getItem(userWeakCntKey(currentUser))) || 0; }
+  catch { return 0; }
+}
+function addWeakCorrectCount(n) {
+  localStorage.setItem(userWeakCntKey(currentUser), String(loadWeakCorrectCount() + n));
+}
+
+// ── ボス週間クールダウン ────────────────────────────────
+const LS_BOSS_KEY = 'study_app_boss_v1';
+function userBossKey(name) { return name ? `${LS_BOSS_KEY}_${name}` : LS_BOSS_KEY; }
+function getISOWeekStr() {
+  const d = new Date();
+  const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = tmp.getUTCDay() || 7;
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+  const wk = Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
+  return `${tmp.getUTCFullYear()}-W${wk}`;
+}
+function loadBossData() {
+  try { return JSON.parse(localStorage.getItem(userBossKey(currentUser))) || {}; }
+  catch { return {}; }
+}
+function saveBossData(data) {
+  localStorage.setItem(userBossKey(currentUser), JSON.stringify(data));
+}
+function canChallengeBoss() {
+  return loadBossData().lastWeek !== getISOWeekStr();
+}
+
+// ── 勲章定義 ───────────────────────────────────────────
+const MEDAL_DEFS = [
+  { id: 'sansu100',  icon: '🔢', name: 'さんすうはかせ',    cond: 'さんすうで通算100もん正解' },
+  { id: 'kokugo100', icon: '📖', name: 'ことばのめいじん',  cond: 'こくごで通算100もん正解' },
+  { id: 'chizuAll',  icon: '🗾', name: 'ちずたんけんか',    cond: 'ちずゲームで全47都道府県を正解' },
+  { id: 'eigo100',   icon: '🔤', name: 'えいごのたつじん',  cond: 'えいごで通算100もん正解' },
+  { id: 'streak7',   icon: '🔥', name: 'れんぞくちょうせん', cond: '7日れんぞくでプレイ' },
+  { id: 'battle10w', icon: '⚔️', name: 'バトルマスター',    cond: 'バトルモードで通算10回かつ' },
+  { id: 'perfect',   icon: '💯', name: 'パーフェクト',      cond: '1ゲームで10もん全問正解' },
+  { id: 'weak50',    icon: '💪', name: 'にがてこくふく',    cond: 'にがて問題を通算50もん正解' },
+];
+
+// ── 勲章チェック・付与 ─────────────────────────────────
+function checkAndAwardMedals() {
+  if (!currentUser) return;
+  const medals = loadMedals();
+  const records = loadRecords();
+  const now = new Date().toISOString();
+  let changed = false;
+  function award(id) {
+    if (!medals[id]) { medals[id] = { earnedDate: now }; changed = true; }
+  }
+  if (!medals.sansu100 && records.filter(r => r.subject === 'sansu').reduce((s, r) => s + r.score, 0) >= 100) award('sansu100');
+  if (!medals.kokugo100 && records.filter(r => r.subject === 'kokugo').reduce((s, r) => s + r.score, 0) >= 100) award('kokugo100');
+  if (!medals.eigo100 && records.filter(r => r.subject === 'eigo').reduce((s, r) => s + r.score, 0) >= 100) award('eigo100');
+  if (!medals.chizuAll && loadChizuPrefs().length >= 47) award('chizuAll');
+  if (!medals.perfect && records.some(r => r.pct === 100 && r.total >= 10)) award('perfect');
+  if (!medals.battle10w && records.filter(r => r.mode === 'battle' && r.win).length >= 10) award('battle10w');
+  if (!medals.weak50 && loadWeakCorrectCount() >= 50) award('weak50');
+  if (!medals.streak7) {
+    const dates = [...new Set(records.map(r => r.date.slice(0, 10)))].sort();
+    let streak = 1, max = 1;
+    for (let i = 1; i < dates.length; i++) {
+      const diff = (new Date(dates[i]) - new Date(dates[i - 1])) / 86400000;
+      streak = diff === 1 ? streak + 1 : 1;
+      if (streak > max) max = streak;
+    }
+    if (max >= 7) award('streak7');
+  }
+  if (changed) saveMedals(medals);
+}
+
+// ── 勲章レンダリング ───────────────────────────────────
+function renderMedals() {
+  const grid = document.getElementById('medal-grid');
+  if (!grid) return;
+  const medals = loadMedals();
+  grid.innerHTML = MEDAL_DEFS.map(def => {
+    const earned = medals[def.id];
+    const date = earned ? new Date(earned.earnedDate) : null;
+    const dateStr = date ? `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()} かくとく` : '';
+    return `<div class="medal-card ${earned ? 'earned' : 'locked'}">
+      <div class="medal-icon">${earned ? def.icon : '🔒'}</div>
+      <div class="medal-name">${def.name}</div>
+      <div class="medal-cond">${def.cond}</div>
+      ${earned ? `<div class="medal-date">${dateStr}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
 function saveWrongAnswer(subject, mode, questionObj) {
   const data = loadWrongAnswers();
   const key = `${subject}__${mode}__${questionObj.q}`;
@@ -3231,6 +3524,7 @@ function switchRecTab(tabId, btn) {
   if (tabId === 'tab-weak')   renderWeakAnalysis();
   if (tabId === 'tab-weekly') renderWeeklyReport(all);
   if (tabId === 'tab-parent') renderParentReport(all);
+  if (tabId === 'tab-medal')  renderMedals();
 }
 
 // ── メイン renderRecords ─────────────────────────────
@@ -4105,7 +4399,9 @@ function showChizuResult() {
   document.getElementById('result-list').innerHTML = cz.answers.map(a =>
     `<li class="${a.ok?'ok':'ng'}"><span class="mark">${a.ok?'⭕':'❌'}</span><span>${a.name}</span></li>`
   ).join('');
+  cz.answers.filter(a => a.ok).forEach(a => { const p = PREFS.find(p => p.name === a.name); if (p) saveChizuPref(p.id); });
   saveRecord({ subject:'chizu', mode:cz.level, score:cz.score, total:cz.qs.length, pct, date:new Date().toISOString() });
+  checkAndAwardMedals();
   showScreen('result-screen');
 }
 
@@ -4331,17 +4627,133 @@ const BATTLE_ENEMIES = [
   },
 ];
 
+const BOSS_ENEMY = {
+  id: 'guardian',
+  name: '👹 しゅごしん',
+  hp: 500,
+  atk: 70,
+  isBoss: true,
+  svgFn: () => `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg1" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#f57f17"/>
+        <stop offset="100%" stop-color="#4a148c"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="50" cy="82" rx="32" ry="14" fill="#7b1fa2" opacity="0.3"/>
+    <polygon points="20,30 10,5 33,25" fill="#ffd600"/>
+    <polygon points="80,30 90,5 67,25" fill="#ffd600"/>
+    <polygon points="50,22 46,5 54,5 50,22" fill="#ffd600"/>
+    <rect x="30" y="58" width="40" height="30" rx="10" fill="url(#bg1)"/>
+    <ellipse cx="50" cy="42" rx="30" ry="28" fill="url(#bg1)"/>
+    <ellipse cx="28" cy="40" rx="10" ry="14" fill="#f57f17" opacity="0.7"/>
+    <ellipse cx="72" cy="40" rx="10" ry="14" fill="#f57f17" opacity="0.7"/>
+    <ellipse cx="36" cy="39" rx="8" ry="9" fill="#fff"/>
+    <ellipse cx="64" cy="39" rx="8" ry="9" fill="#fff"/>
+    <circle cx="37" cy="40" r="5" fill="#b71c1c"/>
+    <circle cx="65" cy="40" r="5" fill="#b71c1c"/>
+    <circle cx="37" cy="39" r="2" fill="#fff"/>
+    <circle cx="65" cy="39" r="2" fill="#fff"/>
+    <line x1="28" y1="31" x2="42" y2="36" stroke="#212121" stroke-width="3" stroke-linecap="round"/>
+    <line x1="72" y1="31" x2="58" y2="36" stroke="#212121" stroke-width="3" stroke-linecap="round"/>
+    <path d="M38 56 L43 62 L50 56 L57 62 L62 56" stroke="#4a148c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M20 60 Q8 52 14 75 Q26 66 20 60Z" fill="#f57f17"/>
+    <path d="M80 60 Q92 52 86 75 Q74 66 80 60Z" fill="#f57f17"/>
+    <text x="43" y="95" font-size="8" fill="#ffd600" opacity="0.8">✦</text>
+  </svg>`
+};
+
 let battleSt = {};
+
+function startBossBattle() {
+  const subject = state.subject;
+  if (!subject || subject === 'chizu') return;
+  const level = expToLevel(loadExp().exp);
+  if (level < 50) { alert('Lv50 いじょうで ちょうせん できます！'); return; }
+  if (!canChallengeBoss()) { alert('ボス戦は 1しゅうかんに 1かいです。\nまた らいしゅう ちょうせん しよう！'); return; }
+
+  let modes = Object.keys(GENERATORS[subject]);
+  if (subject === 'wari') modes = modes.filter(m => m !== 'wari3');
+  const wrongData = loadWrongAnswers();
+  const weakPool = Object.values(wrongData)
+    .filter(w => w.subject === subject && w.q && w.opts && w.ans !== undefined)
+    .sort((a, b) => b.count - a.count);
+
+  const questions = [];
+  for (const w of weakPool) {
+    if (questions.length >= 10) break;
+    if (subject === 'wari' && w.mode === 'wari3') continue;
+    questions.push({ q: w.q, ans: w.ans, opts: w.opts, explanation: w.explanation || '', isWeak: true });
+  }
+  while (questions.length < 10) {
+    const m = modes[rand(0, modes.length - 1)];
+    questions.push({ ...GENERATORS[subject][m](), isWeak: false });
+  }
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
+  }
+
+  battleSt = {
+    subject, questions, current: 0, score: 0, combo: 0,
+    playerHP: 350, playerMaxHP: 350,
+    enemyHP: BOSS_ENEMY.hp, enemyMaxHP: BOSS_ENEMY.hp,
+    enemy: BOSS_ENEMY, answered: false, weakCleared: 0, isBoss: true,
+  };
+
+  const expData = loadExp();
+  const lv = expToLevel(expData.exp);
+  const titleInfo = getDragonTitle(lv);
+  document.getElementById('battle-player-svg').innerHTML = getDragonSVG(lv);
+  document.getElementById('battle-player-name').textContent =
+    `${currentUser || 'ぼく'}（${getDragonName(lv)}）〔${titleInfo.text}〕`;
+  document.getElementById('battle-enemy-svg').innerHTML = BOSS_ENEMY.svgFn();
+  document.getElementById('battle-enemy-name').textContent = BOSS_ENEMY.name;
+
+  battleUpdateHP();
+  document.getElementById('battle-combo-text').textContent = '';
+  document.getElementById('battle-progress-bar').style.width = '0%';
+  document.getElementById('battle-explanation-box').style.display = 'none';
+  document.getElementById('battle-mode-banner').textContent = '👹 ボス戦！しゅごしん';
+
+  const hasWeak = questions.some(q => q.isWeak);
+  document.getElementById('battle-weak-banner').style.display = hasWeak ? '' : 'none';
+
+  showScreen('battle-screen');
+  battleRenderQuestion();
+}
 
 function startBattle() {
   const subject = state.subject;
   if (!subject || subject === 'chizu') return;
 
-  const modes = Object.keys(GENERATORS[subject]);
+  // ① 不正解回数が多い順で苦手問題を取得
+  const wrongData = loadWrongAnswers();
+  const weakPool = Object.values(wrongData)
+    .filter(w => w.subject === subject && w.q && w.opts && w.ans !== undefined)
+    .sort((a, b) => b.count - a.count);
+
   const questions = [];
+
+  // 苦手問題を最大10問まで優先的に追加（バトル除外ルールを適用）
+  for (const w of weakPool) {
+    if (questions.length >= 10) break;
+    if (subject === 'wari' && w.mode === 'wari3') continue;
+    questions.push({ q: w.q, ans: w.ans, opts: w.opts, explanation: w.explanation || '', isWeak: true });
+  }
+
+  // ③ 10問未満なら通常問題で補完
+  let modes = Object.keys(GENERATORS[subject]);
+  if (subject === 'wari') modes = modes.filter(m => m !== 'wari3');
   while (questions.length < 10) {
     const m = modes[rand(0, modes.length - 1)];
-    questions.push(GENERATORS[subject][m]());
+    questions.push({ ...GENERATORS[subject][m](), isWeak: false });
+  }
+
+  // シャッフル
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
   }
 
   const enemy = BATTLE_ENEMIES[rand(0, BATTLE_ENEMIES.length - 1)];
@@ -4358,13 +4770,16 @@ function startBattle() {
     enemyMaxHP: enemy.hp,
     enemy,
     answered: false,
+    weakCleared: 0,
+    isBoss: false,
   };
 
   const expData = loadExp();
   const level = expToLevel(expData.exp);
+  const titleInfo = getDragonTitle(level);
   document.getElementById('battle-player-svg').innerHTML = getDragonSVG(level);
   document.getElementById('battle-player-name').textContent =
-    `${currentUser || 'ぼく'}（${getDragonName(level)}）`;
+    `${currentUser || 'ぼく'}（${getDragonName(level)}）〔${titleInfo.text}〕`;
   document.getElementById('battle-enemy-svg').innerHTML = enemy.svgFn();
   document.getElementById('battle-enemy-name').textContent = enemy.name;
 
@@ -4372,6 +4787,10 @@ function startBattle() {
   document.getElementById('battle-combo-text').textContent = '';
   document.getElementById('battle-progress-bar').style.width = '0%';
   document.getElementById('battle-explanation-box').style.display = 'none';
+  document.getElementById('battle-mode-banner').textContent = '⚔️ バトルモード！';
+
+  const hasWeak = questions.some(q => q.isWeak);
+  document.getElementById('battle-weak-banner').style.display = hasWeak ? '' : 'none';
 
   showScreen('battle-screen');
   battleRenderQuestion();
@@ -4438,11 +4857,20 @@ function battleAnswer(chosen, correct, btn) {
   if (isCorrect) {
     battleSt.score++;
     battleSt.combo++;
-    const dmg = 30 + Math.min(battleSt.combo - 1, 4) * 8;
+    const isWeak = q.isWeak;
+    const baseDmg = 30 + Math.min(battleSt.combo - 1, 4) * 8;
+    const dmg = isWeak ? baseDmg + 30 : baseDmg;
     battleSt.enemyHP -= dmg;
 
-    if (battleSt.combo >= 2) {
-      const comboEl = document.getElementById('battle-combo-text');
+    const comboEl = document.getElementById('battle-combo-text');
+    if (isWeak) {
+      battleSt.weakCleared++;
+      addWeakCorrectCount(1);
+      comboEl.textContent = `💪 にがてせいかい！+30💥`;
+      comboEl.classList.remove('combo-pop');
+      void comboEl.offsetWidth;
+      comboEl.classList.add('combo-pop');
+    } else if (battleSt.combo >= 2) {
       comboEl.textContent = `🔥 ${battleSt.combo}コンボ！`;
       comboEl.classList.remove('combo-pop');
       void comboEl.offsetWidth;
@@ -4454,6 +4882,8 @@ function battleAnswer(chosen, correct, btn) {
     eSvgEl.classList.remove('shake-enemy');
     void eSvgEl.offsetWidth;
     eSvgEl.classList.add('shake-enemy');
+
+    addExp(isWeak ? 20 : 15);
   } else {
     battleSt.combo = 0;
     document.getElementById('battle-combo-text').textContent = '';
@@ -4468,9 +4898,8 @@ function battleAnswer(chosen, correct, btn) {
     pSvgEl.classList.add('shake-player');
 
     saveWrongAnswer(battleSt.subject, 'battle', q);
+    addExp(3);
   }
-
-  addExp(isCorrect ? 15 : 3);
   battleUpdateHP();
   showFeedback(isCorrect);
 
@@ -4511,18 +4940,34 @@ function showBattleResult(win) {
   const expGain = win ? score * 20 + 30 : score * 10;
 
   addExp(expGain);
+  if (win && battleSt.isBoss) {
+    const bd = loadBossData();
+    bd.lastWeek = getISOWeekStr();
+    saveBossData(bd);
+  }
   saveRecord({
     subject, mode: 'battle',
     score, total,
     pct: Math.round(score / total * 100),
+    win,
     date: new Date().toISOString()
   });
+  checkAndAwardMedals();
 
   document.getElementById('battle-result-icon').textContent  = win ? '🏆' : '💀';
   document.getElementById('battle-result-title').textContent = win ? 'しょうり！！' : 'ちっぱい…';
   document.getElementById('battle-result-detail').textContent =
     `${score} / ${total}もん せいかい`;
   document.getElementById('battle-result-exp').textContent   = `＋${expGain} EXP`;
+
+  const weakCleared = battleSt.weakCleared || 0;
+  const weakResultEl = document.getElementById('battle-result-weak');
+  if (weakCleared > 0) {
+    weakResultEl.textContent = `このバトルでにがてを${weakCleared}もんクリアしました！`;
+    weakResultEl.style.display = '';
+  } else {
+    weakResultEl.style.display = 'none';
+  }
 
   if (win) launchConfetti();
   document.getElementById('battle-result-overlay').classList.add('show');
