@@ -1367,6 +1367,76 @@
   }
   /* 解説ボックス（バトル内） */
   #battle-explanation-box { margin-top: 10px; padding: 10px 12px; background: #fffde7; border-radius: 12px; font-size: clamp(13px,3vw,16px); }
+
+  /* ===== 転生システム ===== */
+  .reinc-wrap { position: relative; display: inline-block; }
+  .reinc-star {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 22px; height: 22px;
+    margin: -11px;
+    font-size: 20px; line-height: 1;
+    text-align: center;
+    pointer-events: none;
+  }
+  .reinc-star.s1 { animation: reinc-orbit 3s linear infinite 0s; }
+  .reinc-star.s2 { animation: reinc-orbit 3s linear infinite -1s; }
+  .reinc-star.s3 { animation: reinc-orbit 3s linear infinite -2s; }
+  @keyframes reinc-orbit {
+    0%   { transform: rotate(0deg)   translateX(82px); }
+    100% { transform: rotate(360deg) translateX(82px); }
+  }
+  .reinc-crown {
+    position: absolute;
+    top: -18px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px; line-height: 1;
+    pointer-events: none;
+    animation: reinc-crown-float 2s ease-in-out infinite;
+  }
+  @keyframes reinc-crown-float {
+    0%, 100% { top: -18px; }
+    50%       { top: -24px; }
+  }
+  .reinc-rainbow-aura { animation: reinc-rainbow 2s linear infinite; }
+  @keyframes reinc-rainbow {
+    0%   { filter: drop-shadow(0 0 14px rgba(255,0,0,0.9)); }
+    16%  { filter: drop-shadow(0 0 14px rgba(255,165,0,0.9)); }
+    33%  { filter: drop-shadow(0 0 14px rgba(255,230,0,0.9)); }
+    50%  { filter: drop-shadow(0 0 14px rgba(0,200,60,0.9)); }
+    66%  { filter: drop-shadow(0 0 14px rgba(0,120,255,0.9)); }
+    83%  { filter: drop-shadow(0 0 14px rgba(180,0,255,0.9)); }
+    100% { filter: drop-shadow(0 0 14px rgba(255,0,0,0.9)); }
+  }
+  /* 転生オーバーレイ */
+  #reincarnation-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2000;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #reincarnation-overlay.show { opacity: 1; pointer-events: auto; }
+  #reincarnation-content {
+    background: linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%);
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 380px; width: 90%;
+    text-align: center;
+    transform: scale(0.8);
+    transition: transform 0.3s;
+    box-shadow: 0 8px 32px rgba(124,77,255,0.3);
+  }
+  #reincarnation-overlay.show #reincarnation-content { transform: scale(1); }
+  #reincarnation-svg-wrap { display: flex; justify-content: center; margin-bottom: 10px; min-height: 130px; align-items: center; }
+  #reincarnation-svg-wrap svg { width: 120px; height: 120px; display: block; }
+  #reincarnation-lv { font-size: 20px; font-weight: bold; color: #7c4dff; margin-bottom: 4px; }
+  #reincarnation-question { font-size: 30px; font-weight: bold; color: #e91e63; margin-bottom: 8px; text-shadow: 2px 2px 0 #fff; }
+  #reincarnation-desc { font-size: 14px; color: #555; margin-bottom: 18px; line-height: 1.7; }
+  #reincarnation-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .dragon-title.title-reinc { color: #7c4dff; font-weight: bold; }
+  .dragon-title.title-reinc-legend { color: #e91e63; text-shadow: 0 0 8px #ffd700; }
 </style>
 </head>
 <body>
@@ -1399,6 +1469,20 @@
         </div>
       </div>
       <div id="levelup-evolve-level"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 転生オーバーレイ ===== -->
+<div id="reincarnation-overlay">
+  <div id="reincarnation-content">
+    <div id="reincarnation-svg-wrap"></div>
+    <div id="reincarnation-lv">✨ Lv.100 さいこうレベル！ ✨</div>
+    <div id="reincarnation-question">てんせいする？</div>
+    <p id="reincarnation-desc"></p>
+    <div id="reincarnation-btns">
+      <button class="btn btn-primary" onclick="doReincarnation()">✨ てんせいする！</button>
+      <button class="btn btn-gray" onclick="skipReincarnation()">いまはしない</button>
     </div>
   </div>
 </div>
@@ -2482,11 +2566,15 @@ function proceedAfterAnswer() {
   state._levelUpResult = null;
   if (levelUpResult) {
     showLevelUp(levelUpResult);
-    setTimeout(() => {
-      hideLevelUp();
+    const nextAction = () => {
       if (state.current < state.questions.length) renderQuestion();
       else showResult();
-    }, 2500);
+    };
+    if (levelUpResult.reachedMax) {
+      setTimeout(() => { hideLevelUp(); showReincarnation(nextAction); }, 2500);
+    } else {
+      setTimeout(() => { hideLevelUp(); nextAction(); }, 2500);
+    }
   } else {
     if (state.current < state.questions.length) renderQuestion();
     else showResult();
@@ -2551,6 +2639,8 @@ const USER_COLORS    = ['uc0','uc1','uc2','uc3'];
 let currentUser    = null;
 let _userEditMode  = false;
 let _userDialogMode = null; // 'add' | { type:'rename', index:Number }
+let _reincarnationCallback = null;
+let _reincarnationPending  = false;
 
 function loadUsers() {
   try { return JSON.parse(localStorage.getItem(LS_USERS_KEY)) || []; }
@@ -2627,6 +2717,7 @@ function deleteUser(index) {
   // per-user records も削除
   localStorage.removeItem(userRecordKey(name));
   localStorage.removeItem(userExpKey(name));
+  localStorage.removeItem(userReincKey(name));
   users.splice(index, 1);
   saveUsers(users);
   if (currentUser === name) currentUser = null;
@@ -2660,6 +2751,10 @@ function userDialogOk() {
     const oldExp = localStorage.getItem(userExpKey(oldName));
     if (oldExp) localStorage.setItem(userExpKey(name), oldExp);
     localStorage.removeItem(userExpKey(oldName));
+    // 転生データも移行
+    const oldReinc = localStorage.getItem(userReincKey(oldName));
+    if (oldReinc) localStorage.setItem(userReincKey(name), oldReinc);
+    localStorage.removeItem(userReincKey(oldName));
     if (currentUser === oldName) currentUser = name;
     users[_userDialogMode.index] = name;
   }
@@ -2689,6 +2784,18 @@ function loadExp() {
 function saveExp(data) {
   localStorage.setItem(userExpKey(currentUser), JSON.stringify(data));
 }
+
+// ── 転生データ ─────────────────────────────────────────────
+const LS_REINC_KEY = 'study_app_reinc_v1';
+function userReincKey(name) { return name ? `${LS_REINC_KEY}_${name}` : LS_REINC_KEY; }
+function loadReincarnation() {
+  try { return JSON.parse(localStorage.getItem(userReincKey(currentUser))) || { count: 0 }; }
+  catch { return { count: 0 }; }
+}
+function saveReincarnation(data) {
+  localStorage.setItem(userReincKey(currentUser), JSON.stringify(data));
+}
+
 // レベルごとの必要EXP（段階別）
 function expPerLevel(level) {
   if (level >= 100) return Infinity; // Lv100キャップ
@@ -2760,6 +2867,23 @@ function getDragonTitle(level) {
   if (level >= 20)  return { text: 'つわもの', isGod: false };
   if (level >= 10)  return { text: 'いっぱしのぼうけんしゃ', isGod: false };
   return { text: 'みならい', isGod: false };
+}
+function getReincarnationTitle(count) {
+  if (count >= 3) return { text: 'でんせつのてんせいし ★★★', cssClass: 'title-reinc-legend' };
+  if (count === 2) return { text: 'てんせいし ★★', cssClass: 'title-reinc' };
+  if (count === 1) return { text: 'てんせいし ★', cssClass: 'title-reinc' };
+  return null;
+}
+function getDragonWithAura(level, reincCount) {
+  const svg = getDragonSVG(level);
+  if (!reincCount) return svg;
+  if (reincCount === 1) {
+    return `<div class="reinc-wrap reinc-star-aura"><span class="reinc-star s1">⭐</span><span class="reinc-star s2">⭐</span><span class="reinc-star s3">⭐</span>${svg}</div>`;
+  }
+  if (reincCount === 2) {
+    return `<div class="reinc-wrap"><span class="reinc-crown">👑</span>${svg}</div>`;
+  }
+  return `<div class="reinc-wrap reinc-rainbow-aura">${svg}</div>`;
 }
 
 // ── SVGドラゴン描画関数 ──────────────────────────────────
@@ -3288,26 +3412,40 @@ function updateDragonPanel() {
   const level = expToLevel(exp);
   const inLevel = expInCurrentLevel(exp);
   const needed = expPerLevel(level);
-  const titleInfo = getDragonTitle(level);
-  document.getElementById('dragon-svg-wrap').innerHTML = getDragonSVG(level);
+  const reincData = loadReincarnation();
+  const reincTitle = getReincarnationTitle(reincData.count);
+  let titleClass = 'dragon-title';
+  let titleText;
+  if (reincTitle) {
+    titleClass += ' ' + reincTitle.cssClass;
+    titleText = reincTitle.text;
+  } else {
+    const t = getDragonTitle(level);
+    if (t.isGod) titleClass += ' title-god';
+    titleText = t.text;
+  }
+  document.getElementById('dragon-svg-wrap').innerHTML = getDragonWithAura(level, reincData.count);
   document.getElementById('dragon-level-text').innerHTML =
-    `Lv.${level} ${getDragonName(level)}<span class="dragon-title${titleInfo.isGod ? ' title-god' : ''}">${titleInfo.text}</span>`;
+    `Lv.${level} ${getDragonName(level)}<span class="${titleClass}">${titleText}</span>`;
   document.querySelector('.dragon-exp-bar').style.width = `${Math.round(inLevel / needed * 100)}%`;
   document.getElementById('dragon-exp-label').textContent = `EXP ${inLevel} / ${needed}`;
 }
 
 function addExp(amount) {
   if (!currentUser) return null;
+  const reincData = loadReincarnation();
+  const actual = Math.round(amount * Math.pow(1.5, reincData.count));
   const data = loadExp();
   const oldLevel = expToLevel(data.exp);
   const oldStage = getDragonStage(oldLevel);
-  data.exp += amount;
+  data.exp += actual;
   saveExp(data);
   const newLevel = expToLevel(data.exp);
   const newStage = getDragonStage(newLevel);
   updateDragonPanel();
   if (newLevel > oldLevel) {
-    return { level: newLevel, oldLevel, evolved: newStage > oldStage };
+    const reachedMax = newLevel >= 100 && reincData.count < 3;
+    return { level: newLevel, oldLevel, evolved: newStage > oldStage, reachedMax, gained: actual };
   }
   return null;
 }
@@ -3337,6 +3475,42 @@ function showLevelUp({ level, oldLevel, evolved }) {
 }
 function hideLevelUp() {
   document.getElementById('levelup-overlay').classList.remove('show');
+}
+
+// ── 転生オーバーレイ ───────────────────────────────────────
+function showReincarnation(callback) {
+  _reincarnationCallback = callback;
+  const reincData = loadReincarnation();
+  const nextCount = reincData.count + 1;
+  const descs = [
+    'ドラゴンに ⭐ ほしの オーラ が つく！\nけいけんちが 1.5ばい に なるよ！',
+    'ドラゴンに 👑 おうかん が つく！\nけいけんちが さらに パワーアップ！',
+    'ドラゴンに 🌈 にじいろ の オーラ が つく！\nでんせつの つよさ に なるよ！'
+  ];
+  const descIdx = Math.min(reincData.count, 2);
+  document.getElementById('reincarnation-svg-wrap').innerHTML = getDragonWithAura(100, nextCount);
+  document.getElementById('reincarnation-desc').innerHTML = descs[descIdx].replace('\n', '<br>');
+  document.getElementById('reincarnation-overlay').classList.add('show');
+}
+function hideReincarnation() {
+  document.getElementById('reincarnation-overlay').classList.remove('show');
+}
+function doReincarnation() {
+  const reincData = loadReincarnation();
+  reincData.count = Math.min(reincData.count + 1, 3);
+  saveReincarnation(reincData);
+  saveExp({ exp: 0 });
+  hideReincarnation();
+  updateDragonPanel();
+  const cb = _reincarnationCallback;
+  _reincarnationCallback = null;
+  if (cb) cb();
+}
+function skipReincarnation() {
+  hideReincarnation();
+  const cb = _reincarnationCallback;
+  _reincarnationCallback = null;
+  if (cb) cb();
 }
 
 // ======================================================
@@ -4939,7 +5113,10 @@ function showBattleResult(win) {
   const total = questions.length;
   const expGain = win ? score * 20 + 30 : score * 10;
 
-  addExp(expGain);
+  const reincMult = currentUser ? Math.pow(1.5, loadReincarnation().count) : 1;
+  const actualExpGain = Math.round(expGain * reincMult);
+  const lvResult = addExp(expGain);
+  if (lvResult && lvResult.reachedMax) _reincarnationPending = true;
   if (win && battleSt.isBoss) {
     const bd = loadBossData();
     bd.lastWeek = getISOWeekStr();
@@ -4958,7 +5135,7 @@ function showBattleResult(win) {
   document.getElementById('battle-result-title').textContent = win ? 'しょうり！！' : 'ちっぱい…';
   document.getElementById('battle-result-detail').textContent =
     `${score} / ${total}もん せいかい`;
-  document.getElementById('battle-result-exp').textContent   = `＋${expGain} EXP`;
+  document.getElementById('battle-result-exp').textContent   = `＋${actualExpGain} EXP`;
 
   const weakCleared = battleSt.weakCleared || 0;
   const weakResultEl = document.getElementById('battle-result-weak');
@@ -4975,7 +5152,12 @@ function showBattleResult(win) {
 
 function battleResultOk() {
   document.getElementById('battle-result-overlay').classList.remove('show');
-  showScreen('title-screen');
+  if (_reincarnationPending) {
+    _reincarnationPending = false;
+    showReincarnation(() => showScreen('title-screen'));
+  } else {
+    showScreen('title-screen');
+  }
 }
 
 function showBattleDamage(elId, text, color) {
