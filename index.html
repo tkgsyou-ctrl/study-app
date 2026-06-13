@@ -144,6 +144,30 @@
   .mode-btn.kanji3  { background: #fbe9e7; border-color: #ff7043; color: #bf360c; }
   .mode-btn.shakai3 { background: #e1f5fe; border-color: #29b6f6; color: #01579b; }
   .mode-btn.rika3   { background: #f1f8e9; border-color: #aed581; color: #33691e; }
+  .mode-btn.monjidai  { background: #fff3e0; border-color: #ff9800; color: #e65100; }
+  .mode-btn.hissan-add { background: #e8f5e9; border-color: #66bb6a; color: #1b5e20; }
+  .mode-btn.hissan-sub { background: #fce4ec; border-color: #f48fb1; color: #880e4f; }
+  .mode-divider {
+    text-align: center; font-size: 13px; color: #9e9e9e;
+    padding: 8px 0 2px; font-weight: bold; letter-spacing: 0.05em;
+  }
+
+  /* ===== 筆算表示 ===== */
+  .hissan-table {
+    border-collapse: separate; border-spacing: 0;
+    margin: 4px auto 10px;
+    font-family: 'Courier New', 'Menlo', monospace;
+    font-size: clamp(24px, 6vw, 42px);
+    font-weight: bold; color: #1a237e;
+  }
+  .hd-op {
+    text-align: right; padding-right: 6px;
+    color: #e91e63; font-size: 0.9em; min-width: 1em;
+  }
+  .hd-digit { text-align: center; min-width: 0.85em; padding: 2px 3px; }
+  .hd-q { color: #ff6f00; }
+  .hd-line-row td { padding: 4px 0; }
+  .hd-hr { height: 4px; background: #1a237e; border-radius: 2px; }
   .grade-badge {
     display: inline-block;
     font-size: 11px;
@@ -287,6 +311,7 @@
     font-size: clamp(14px, 3.5vw, 17px);
     line-height: 1.7;
     color: #5d4037;
+    white-space: pre-wrap;
   }
   #next-btn {
     margin-top: 14px;
@@ -1569,7 +1594,7 @@
   <div id="weak-mode-banner">😣 にがてもんだい れんしゅうちゅう！</div>
   <p id="question-count"></p>
   <div class="card" style="max-width:560px">
-    <p id="question-text"></p>
+    <div id="question-text"></div>
     <div class="choices-grid" id="choices"></div>
     <div id="explanation-box" style="display:none">
       <p>💡 <span id="explanation-text"></span></p>
@@ -2264,6 +2289,184 @@ function makePoolGen(pool) {
 }
 
 // ======================================================
+// さんすう 文章問題プール（3年生レベル 35問）
+// ======================================================
+const SANSU_MONJIDAI_POOL = [
+  // たし算
+  { q: 'りんごが8こあります。3こもらいました。ぜんぶで何こですか？', ans: '11こ', wrongs: ['9こ','10こ','12こ'], explanation: '8こ＋3こ＝11こ　たしざんでもとめます。' },
+  { q: 'バスに16人のっています。つぎのバスていで7人のりました。今何人ですか？', ans: '23人', wrongs: ['22人','21人','24人'], explanation: '16人＋7人＝23人' },
+  { q: '赤いふうせんが25こ、青いふうせんが18こあります。あわせて何こですか？', ans: '43こ', wrongs: ['42こ','44こ','40こ'], explanation: '25こ＋18こ＝43こ' },
+  { q: '本を今日36ページよみました。きのうは47ページよみました。2日間で何ページよみましたか？', ans: '83ページ', wrongs: ['82ページ','84ページ','80ページ'], explanation: '36ページ＋47ページ＝83ページ' },
+  { q: 'えんぴつが45本あります。28本もらいました。ぜんぶで何本ですか？', ans: '73本', wrongs: ['72本','74本','70本'], explanation: '45本＋28本＝73本' },
+  { q: '子どもが24人います。そこへ8人きました。みんなで何人ですか？', ans: '32人', wrongs: ['30人','31人','33人'], explanation: '24人＋8人＝32人' },
+  { q: 'みかんが9こあります。友だちから14こもらいました。ぜんぶで何こですか？', ans: '23こ', wrongs: ['22こ','21こ','24こ'], explanation: '9こ＋14こ＝23こ' },
+  { q: 'きのう68まいのシールをあつめました。今日36まいあつめました。ぜんぶで何まいですか？', ans: '104まい', wrongs: ['102まい','103まい','106まい'], explanation: '68まい＋36まい＝104まい' },
+  { q: 'プールに男の子が57人、女の子が38人います。あわせて何人ですか？', ans: '95人', wrongs: ['93人','94人','96人'], explanation: '57人＋38人＝95人' },
+  // ひき算
+  { q: 'りんごが15こあります。7こたべました。のこりは何こですか？', ans: '8こ', wrongs: ['7こ','9こ','10こ'], explanation: '15こ－7こ＝8こ　ひきざんでもとめます。' },
+  { q: 'バスに35人のっていました。9人おりました。今何人ですか？', ans: '26人', wrongs: ['24人','25人','27人'], explanation: '35人－9人＝26人' },
+  { q: '本が48ページあります。今日15ページよみました。のこりは何ページですか？', ans: '33ページ', wrongs: ['32ページ','34ページ','30ページ'], explanation: '48ページ－15ページ＝33ページ' },
+  { q: '池に魚が72ひきいます。25ひきにげました。のこりは何ひきですか？', ans: '47ひき', wrongs: ['45ひき','46ひき','48ひき'], explanation: '72ひき－25ひき＝47ひき' },
+  { q: 'えんぴつが63本あります。18本つかいました。のこりは何本ですか？', ans: '45本', wrongs: ['43本','44本','46本'], explanation: '63本－18本＝45本' },
+  { q: '100円もっています。63円のジュースをかいました。おつりはいくらですか？', ans: '37円', wrongs: ['35円','36円','38円'], explanation: '100円－63円＝37円' },
+  { q: '水が800mLあります。350mL使いました。のこりは何mLですか？', ans: '450mL', wrongs: ['400mL','440mL','460mL'], explanation: '800mL－350mL＝450mL' },
+  { q: 'きょうしつに34人います。6人かえりました。のこりは何人ですか？', ans: '28人', wrongs: ['26人','27人','30人'], explanation: '34人－6人＝28人' },
+  { q: '学校に285人います。今日8人休みました。今日学校にきた子は何人ですか？', ans: '277人', wrongs: ['275人','276人','278人'], explanation: '285人－8人＝277人' },
+  // かけ算
+  { q: '1本12円のえんぴつを4本かいました。ぜんぶでいくらですか？', ans: '48円', wrongs: ['40円','44円','52円'], explanation: '12円×4本＝48円　かけざんでもとめます。' },
+  { q: '1さつ150円のノートを3さつかいました。ぜんぶでいくらですか？', ans: '450円', wrongs: ['400円','440円','460円'], explanation: '150円×3さつ＝450円' },
+  { q: 'いすが1れつに7きゃくならんでいます。5れつあります。ぜんぶで何きゃくですか？', ans: '35きゃく', wrongs: ['30きゃく','32きゃく','40きゃく'], explanation: '7きゃく×5れつ＝35きゃく' },
+  { q: '1はこに8こ入りのあめが6はこあります。あめはぜんぶで何こですか？', ans: '48こ', wrongs: ['42こ','44こ','54こ'], explanation: '8こ×6はこ＝48こ' },
+  { q: '1まい15円の色紙を9まいかいました。ぜんぶでいくらですか？', ans: '135円', wrongs: ['125円','130円','145円'], explanation: '15円×9まい＝135円' },
+  { q: '子どもが4人います。1人に5このみかんをくばります。みかんはぜんぶで何こいりますか？', ans: '20こ', wrongs: ['15こ','18こ','24こ'], explanation: '5こ×4人＝20こ' },
+  { q: '1こ80円のドーナツを5こかいました。ぜんぶでいくらですか？', ans: '400円', wrongs: ['350円','380円','450円'], explanation: '80円×5こ＝400円' },
+  { q: '長さ6cmのテープが8本あります。ぜんぶつなぐと何cmになりますか？', ans: '48cm', wrongs: ['42cm','44cm','54cm'], explanation: '6cm×8本＝48cm' },
+  { q: '1まい20円のシールを7まいかいました。ぜんぶでいくらですか？', ans: '140円', wrongs: ['120円','130円','150円'], explanation: '20円×7まい＝140円' },
+  // わり算
+  { q: '24まいの色紙を3人で同じ数ずつわけます。1人何まいですか？', ans: '8まい', wrongs: ['6まい','7まい','9まい'], explanation: '24まい÷3人＝8まい　わりざんでもとめます。' },
+  { q: '48このあめを6人でわけます。1人何こですか？', ans: '8こ', wrongs: ['6こ','7こ','9こ'], explanation: '48こ÷6人＝8こ' },
+  { q: '35このりんごを5つのふくろにおなじ数ずつ入れます。1ふくろに何こはいりますか？', ans: '7こ', wrongs: ['5こ','6こ','8こ'], explanation: '35こ÷5＝7こ' },
+  { q: '72まいのカードを8まいずつわけます。何人にわけられますか？', ans: '9人', wrongs: ['7人','8人','10人'], explanation: '72まい÷8まい＝9人' },
+  { q: '27このチョコレートを9こずつはこに入れます。はこは何こいりますか？', ans: '3こ', wrongs: ['2こ','4こ','5こ'], explanation: '27こ÷9こ＝3はこ' },
+  { q: '花が54本あります。9本ずつたばにします。たばは何たばできますか？', ans: '6たば', wrongs: ['4たば','5たば','7たば'], explanation: '54本÷9本＝6たば' },
+  { q: 'ひもが90cmあります。6等分にきります。1本は何cmですか？', ans: '15cm', wrongs: ['12cm','14cm','16cm'], explanation: '90cm÷6＝15cm' },
+  { q: 'えんぴつを4本ずつたばにします。32本あります。たばは何たばできますか？', ans: '8たば', wrongs: ['6たば','7たば','9たば'], explanation: '32本÷4本＝8たば' },
+];
+
+// ===== 筆算ヘルパー =====
+function makeHissanHtml(a, b, op) {
+  const ans = op === '+' ? a + b : a - b;
+  const aStr = String(a), bStr = String(b), ansStr = String(ans);
+  const cols = Math.max(aStr.length, bStr.length, ansStr.length);
+  const opSym = op === '+' ? '＋' : '－';
+  function numRow(numStr, opCell) {
+    const empty = cols - numStr.length;
+    let cells = '';
+    for (let i = 0; i < empty; i++) cells += '<td class="hd-digit"></td>';
+    for (const c of numStr) cells += `<td class="hd-digit">${c}</td>`;
+    return `<tr><td class="hd-op">${opCell}</td>${cells}</tr>`;
+  }
+  let ansCells = '';
+  for (let i = 0; i < cols; i++) ansCells += '<td class="hd-digit hd-q">？</td>';
+  return `<div style="text-align:center"><table class="hissan-table">` +
+    numRow(aStr, '') + numRow(bStr, opSym) +
+    `<tr class="hd-line-row"><td colspan="${cols + 1}"><div class="hd-hr"></div></td></tr>` +
+    `<tr><td class="hd-op"></td>${ansCells}</tr></table></div>`;
+}
+
+function makeHissanExplanation(a, b, op) {
+  const ans = op === '+' ? a + b : a - b;
+  const POS = ['一', '十', '百', '千'];
+  const steps = [];
+  if (op === '+') {
+    let carry = 0;
+    const aS = String(a), bS = String(b);
+    const maxP = Math.max(aS.length, bS.length);
+    for (let i = 0; i <= maxP; i++) {
+      const ad = i < aS.length ? +aS[aS.length - 1 - i] : 0;
+      const bd = i < bS.length ? +bS[bS.length - 1 - i] : 0;
+      const s = ad + bd + carry;
+      if (i >= maxP && s === 0) break;
+      const pos = POS[i] || `${Math.pow(10, i)}`;
+      let line = `${pos}の位：${ad}＋${bd}`;
+      if (carry) line += `＋${carry}（くりあがり）`;
+      line += `＝${s}`;
+      carry = s >= 10 ? 1 : 0;
+      if (carry) line += ` → ${pos}の位は${s - 10}、左の位へ1くりあがり`;
+      steps.push(line);
+    }
+  } else {
+    let borrow = 0;
+    const aS = String(a), bS = String(b);
+    for (let i = 0; i < aS.length; i++) {
+      const origAd = +aS[aS.length - 1 - i];
+      const bd = i < bS.length ? +bS[bS.length - 1 - i] : 0;
+      const pos = POS[i] || `${Math.pow(10, i)}`;
+      const eff = origAd - borrow;
+      if (eff < bd) {
+        let line = `${pos}の位：${origAd}`;
+        if (borrow) line += `（くりさげ後${eff}）`;
+        line += `－${bd} → 左からくりさげて${eff + 10}－${bd}＝${eff + 10 - bd}`;
+        steps.push(line); borrow = 1;
+      } else {
+        steps.push(`${pos}の位：${eff}－${bd}＝${eff - bd}`); borrow = 0;
+      }
+    }
+  }
+  steps.push(`こたえは ${ans}`);
+  return steps.join('\n');
+}
+
+function makeHissanOpts(ans) {
+  const set = new Set([ans]);
+  const scale = ans < 100 ? 5 : ans < 1000 ? 15 : 50;
+  let tries = 0;
+  while (set.size < 4 && tries < 200) {
+    tries++;
+    const v = ans + (rand(0, 1) ? 1 : -1) * rand(1, scale * 2);
+    if (v > 0 && v !== ans) set.add(v);
+  }
+  let n = ans + 1;
+  while (set.size < 4) { if (!set.has(n)) set.add(n); n++; }
+  return shuffle([...set]);
+}
+
+function hissanHasCarry(a, b) {
+  let carry = 0, found = false;
+  for (let i = 0; i < 4; i++) {
+    const s = Math.floor(a / Math.pow(10, i)) % 10 + Math.floor(b / Math.pow(10, i)) % 10 + carry;
+    carry = s >= 10 ? 1 : 0;
+    if (carry) found = true;
+  }
+  return found;
+}
+
+function hissanHasBorrow(a, b) {
+  let borrow = 0, found = false;
+  for (let i = 0; i < 4; i++) {
+    const ad = Math.floor(a / Math.pow(10, i)) % 10 - borrow;
+    const bd = Math.floor(b / Math.pow(10, i)) % 10;
+    borrow = ad < bd ? 1 : 0;
+    if (borrow) found = true;
+  }
+  return found;
+}
+
+function genHissanAdd(difficulty) {
+  let a, b;
+  if (difficulty === 'easy') {
+    const a1 = rand(0, 9), a10 = rand(0, 8), a100 = rand(1, 9);
+    const b1 = rand(0, 9 - a1), b10 = rand(1, Math.max(1, 9 - a10));
+    a = a100 * 100 + a10 * 10 + a1;
+    b = b10 * 10 + b1;
+  } else if (difficulty === 'normal') {
+    do { a = rand(100, 999); b = rand(100, 999); } while (!hissanHasCarry(a, b));
+  } else {
+    a = rand(1000, 9000); b = rand(1000, 9000);
+  }
+  const ans = a + b;
+  return { q: makeHissanHtml(a, b, '+'), textQ: `${a} ＋ ${b} ＝ ？`, ans, opts: makeHissanOpts(ans),
+           explanation: makeHissanExplanation(a, b, '+'), isHtml: true };
+}
+
+function genHissanSub(difficulty) {
+  let a, b;
+  if (difficulty === 'easy') {
+    const b1 = rand(0, 8), a1 = rand(b1, 9);
+    const b10 = rand(1, 8), a10 = rand(b10, 9);
+    a = rand(1, 9) * 100 + a10 * 10 + a1;
+    b = b10 * 10 + b1;
+  } else if (difficulty === 'normal') {
+    do { a = rand(200, 999); b = rand(100, a - 1); } while (!hissanHasBorrow(a, b) || (a - b) < 10);
+  } else {
+    a = rand(2000, 9999); b = rand(1000, a - 1);
+  }
+  const ans = a - b;
+  return { q: makeHissanHtml(a, b, '-'), textQ: `${a} － ${b} ＝ ？`, ans, opts: makeHissanOpts(ans),
+           explanation: makeHissanExplanation(a, b, '-'), isHtml: true };
+}
+
+// ======================================================
 // 問題生成
 // ======================================================
 const GENERATORS = {
@@ -2310,6 +2513,13 @@ const GENERATORS = {
       }
       return { q: `${a} ÷ ${d} ＝ ？`, ans, opts: shuffle([ans, ...wrongs]) };
     },
+    monjidai:          makePoolGen(SANSU_MONJIDAI_POOL),
+    hissan_add_easy:   () => genHissanAdd('easy'),
+    hissan_add_normal: () => genHissanAdd('normal'),
+    hissan_add_hard:   () => genHissanAdd('hard'),
+    hissan_sub_easy:   () => genHissanSub('easy'),
+    hissan_sub_normal: () => genHissanSub('normal'),
+    hissan_sub_hard:   () => genHissanSub('hard'),
   },
   kokugo: {
     hira:   makePoolGen(KOKUGO_POOLS.hira),
@@ -2361,6 +2571,15 @@ const MODES = {
     { key: 'wari1', label: '➗ わりざん かんたん（÷2〜÷5）<br><span class="grade-badge">3ねんせい</span>', cls: 'wari1' },
     { key: 'wari2', label: '➗ わりざん ふつう（÷2〜÷9）<br><span class="grade-badge">3ねんせい</span>', cls: 'wari2' },
     { key: 'wari3', label: '➗ わりざん むずかしい（あまりあり）<br><span class="grade-badge">3ねんせい</span>', cls: 'wari3' },
+    { divider: true, label: '📖 文章問題' },
+    { key: 'monjidai', label: '📖 文章問題（たし・ひき・かけ・わり）<br><span class="grade-badge">3ねんせい</span>', cls: 'monjidai' },
+    { divider: true, label: '✏️ 筆算' },
+    { key: 'hissan_add_easy',   label: '➕ 筆算たし算 かんたん（3桁＋2桁）<br><span class="grade-badge">3ねんせい</span>',                cls: 'hissan-add' },
+    { key: 'hissan_add_normal', label: '➕ 筆算たし算 ふつう（3桁＋3桁・くりあがりあり）<br><span class="grade-badge">3ねんせい</span>',  cls: 'hissan-add' },
+    { key: 'hissan_add_hard',   label: '➕ 筆算たし算 むずかしい（4桁）<br><span class="grade-badge">3ねんせい</span>',                  cls: 'hissan-add' },
+    { key: 'hissan_sub_easy',   label: '➖ 筆算ひき算 かんたん（3桁－2桁）<br><span class="grade-badge">3ねんせい</span>',                cls: 'hissan-sub' },
+    { key: 'hissan_sub_normal', label: '➖ 筆算ひき算 ふつう（3桁－3桁・くりさげあり）<br><span class="grade-badge">3ねんせい</span>',    cls: 'hissan-sub' },
+    { key: 'hissan_sub_hard',   label: '➖ 筆算ひき算 むずかしい（4桁）<br><span class="grade-badge">3ねんせい</span>',                  cls: 'hissan-sub' },
   ],
   kokugo: [
     { key: 'hira',   label: '🔤 ひらがなことば（30もん）<br><span class="grade-badge">1ねんせい</span>',    cls: 'hira'   },
@@ -2394,7 +2613,9 @@ function selectSubject(subject) {
   state.subject = subject;
   const modes = MODES[subject];
   document.getElementById('mode-buttons').innerHTML = modes.map(m =>
-    `<button class="mode-btn ${m.cls}" onclick="startQuiz('${subject}','${m.key}')">${m.label}</button>`
+    m.divider
+      ? `<div class="mode-divider">${m.label}</div>`
+      : `<button class="mode-btn ${m.cls}" onclick="startQuiz('${subject}','${m.key}')">${m.label}</button>`
   ).join('');
   const subjectTitles = { sansu:'さんすう — もんだいをえらぼう', kokugo:'こくご — もんだいをえらぼう', shakai:'しゃかい — もんだいをえらぼう', rika:'りか — もんだいをえらぼう', eigo:'えいご — もんだいをえらぼう', chizu:'ちずゲーム — レベルをえらぼう' };
   document.getElementById('mode-title').textContent = subjectTitles[subject] || subject;
@@ -2493,7 +2714,8 @@ function renderQuestion() {
   document.getElementById('progress-bar').style.width = `${(current / total) * 100}%`;
   document.getElementById('question-count').textContent = `もんだい ${current + 1} / ${total}`;
   const q = questions[current];
-  document.getElementById('question-text').textContent = q.q;
+  const _qEl = document.getElementById('question-text');
+  if (q.isHtml) _qEl.innerHTML = q.q; else _qEl.textContent = q.q;
   const choicesEl = document.getElementById('choices');
   choicesEl.innerHTML = '';
   q.opts.forEach(opt => {
@@ -2521,7 +2743,7 @@ function answer(chosen, correct, btn) {
 
   if (isCorrect) state.score++;
   const _curQ = state.questions[state.current];
-  state.answers.push({ q: _curQ.q, chosen, correct, ok: isCorrect });
+  state.answers.push({ q: _curQ.textQ || _curQ.q, chosen, correct, ok: isCorrect });
 
   // 不正解ならにがてデータに記録
   // にがてモード中は元のモードで保存してカウントを正しく積算する
@@ -3650,10 +3872,11 @@ function renderMedals() {
 
 function saveWrongAnswer(subject, mode, questionObj) {
   const data = loadWrongAnswers();
-  const key = `${subject}__${mode}__${questionObj.q}`;
+  const key = `${subject}__${mode}__${questionObj.textQ || questionObj.q}`;
   if (!data[key]) {
     data[key] = { subject, mode, q: questionObj.q, ans: questionObj.ans,
-                  opts: questionObj.opts, explanation: questionObj.explanation || '', count: 0 };
+                  opts: questionObj.opts, explanation: questionObj.explanation || '',
+                  isHtml: questionObj.isHtml || false, count: 0 };
   }
   data[key].count++;
   data[key].lastWrong = new Date().toISOString();
@@ -3678,6 +3901,9 @@ function saveRecord(rec) {
 const MODE_LABELS = {
   tashi: 'たしざん', hiki: 'ひきざん', kuku: '九九',
   wari1: 'わりざん(かんたん)', wari2: 'わりざん(ふつう)', wari3: 'わりざん(むずかしい)',
+  monjidai: '文章問題',
+  hissan_add_easy: '筆算たし算(かんたん)', hissan_add_normal: '筆算たし算(ふつう)', hissan_add_hard: '筆算たし算(むずかしい)',
+  hissan_sub_easy: '筆算ひき算(かんたん)', hissan_sub_normal: '筆算ひき算(ふつう)', hissan_sub_hard: '筆算ひき算(むずかしい)',
   hira: 'ひらがなことば', kanji: 'かんじよみ', kanji3: '3ねんせいかんじ',
   machi: 'まちとしごと', kisetu: 'きせつとぎょうじ', shakai3: '3ねんせいしゃかい',
   shokubutsu: 'しょくぶつ・むし', tenki: 'てんき・でんき', rika3: '3ねんせいりか',
@@ -3715,7 +3941,7 @@ function renderRecords() {
 
   const all = loadRecords();
   renderHistoryTable(all);
-  drawSubjectChart('chart-sansu',  all.filter(r => r.subject === 'sansu'),  ['tashi','hiki','kuku','wari1','wari2','wari3'],            { tashi:'#f9a825', hiki:'#e91e63', kuku:'#7e57c2', wari1:'#4caf50', wari2:'#ff9800', wari3:'#f44336' });
+  drawSubjectChart('chart-sansu',  all.filter(r => r.subject === 'sansu'),  ['tashi','hiki','kuku','wari1','wari2','wari3','monjidai','hissan_add_easy','hissan_add_normal','hissan_add_hard','hissan_sub_easy','hissan_sub_normal','hissan_sub_hard'],  { tashi:'#f9a825', hiki:'#e91e63', kuku:'#7e57c2', wari1:'#4caf50', wari2:'#ff9800', wari3:'#f44336', monjidai:'#00bcd4', hissan_add_easy:'#b2dfdb', hissan_add_normal:'#4caf50', hissan_add_hard:'#1b5e20', hissan_sub_easy:'#f8bbd0', hissan_sub_normal:'#e91e63', hissan_sub_hard:'#880e4f' });
   drawSubjectChart('chart-kokugo', all.filter(r => r.subject === 'kokugo'), ['hira','kanji','kanji3'],                   { hira:'#f06292', kanji:'#ff8f00', kanji3:'#e64a19' });
   drawSubjectChart('chart-shakai', all.filter(r => r.subject === 'shakai'), ['machi','kisetu','shakai3'],                 { machi:'#42a5f5', kisetu:'#5c6bc0', shakai3:'#0288d1' });
   drawSubjectChart('chart-rika',   all.filter(r => r.subject === 'rika'),   ['shokubutsu','tenki','rika3'],             { shokubutsu:'#66bb6a', tenki:'#26c6da', rika3:'#8bc34a' });
@@ -4846,7 +5072,8 @@ function startBossBattle() {
   if (level < 50) { alert('Lv50 いじょうで ちょうせん できます！'); return; }
   if (!canChallengeBoss()) { alert('ボス戦は 1しゅうかんに 1かいです。\nまた らいしゅう ちょうせん しよう！'); return; }
 
-  let modes = Object.keys(GENERATORS[subject]);
+  const _hissanModesB = new Set(['hissan_add_easy','hissan_add_normal','hissan_add_hard','hissan_sub_easy','hissan_sub_normal','hissan_sub_hard']);
+  let modes = Object.keys(GENERATORS[subject]).filter(m => !_hissanModesB.has(m));
   if (subject === 'wari') modes = modes.filter(m => m !== 'wari3');
   const wrongData = loadWrongAnswers();
   const weakPool = Object.values(wrongData)
@@ -4917,7 +5144,8 @@ function startBattle() {
   }
 
   // ③ 10問未満なら通常問題で補完
-  let modes = Object.keys(GENERATORS[subject]);
+  const _hissanModes = new Set(['hissan_add_easy','hissan_add_normal','hissan_add_hard','hissan_sub_easy','hissan_sub_normal','hissan_sub_hard']);
+  let modes = Object.keys(GENERATORS[subject]).filter(m => !_hissanModes.has(m));
   if (subject === 'wari') modes = modes.filter(m => m !== 'wari3');
   while (questions.length < 10) {
     const m = modes[rand(0, modes.length - 1)];
